@@ -59,9 +59,32 @@ public class Analyzer {
 	 * @return the longest palindrom
 	 */
 	private static String detectLongestPalindrom(String filePath) {
-		String longestPalindrom = "The detection of the longest palindrom is not yet implemented.";
+		
+		String text = IO.getFileContent(filePath);
+		String longestPalindrom = "";
+		String palindrom = "";
+		int textLength = text.length();
+		
+		int i, j;
+		i = j = 0;
+		for (int k = 1; k < textLength-1; k++ ) 
+		{
+			j = k +1;
+			i = k -1;
+		 	while (i >= 0 && j < textLength)
+		 	{
+		 		if (text.charAt(i)== text.charAt(j)) {
+		 			j++; i--;
+		 		} else break;
+		 		
+		 		if ((j- i+1)> longestPalindrom.length())
+		 			longestPalindrom = text.substring(i+1,j-1);
+		 	}
+		}
+		
 		return longestPalindrom;
 	}
+	
 	
 	/**
 	 * Checks whether the passed {@link String} is a palindrom. Empty {@link String}s are regarded as palindroms.
