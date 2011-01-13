@@ -1,0 +1,109 @@
+% 
+% Information Retrieval
+% -------------------------------
+% University of California Irvine
+% 
+% Author:
+% - María Carrasco Rodríguez
+% - Fabs Lindenberg
+
+\documentclass[a4paper,11pt,oneside]{book}
+\usepackage{wrapfig} 
+\usepackage{helvet}
+\usepackage{phdthesis}
+\usepackage{kostspielig}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{appendix}
+
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{epsfig}
+
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[L]{\textsf{\textbf{CS 221 Information Retrieval}\\ Assignment 2}}
+\fancyhead[R]{\textsf{Maria Carrasco (16874129)\\ Fabian Lindenberg (74076658)}}
+\fancyfoot[R]{\textsf{\thepage}}
+\renewcommand{\footrulewidth}{0.4pt}
+\cfoot[]{}
+
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO: #1}}}
+
+\hypersetup{colorlinks, 
+           linkbordercolor= 1 0.8 0.8,
+           citecolor=black,
+           filecolor=black,
+           linkcolor=black,
+           urlcolor=black,
+           bookmarksopen=true,
+           pdftex}
+\title{Information Retrieval }
+\subtitle{Assignment 1}
+\location{University of California Irvine}
+\author{ María Carrasco Rodríguez \\
+		Fabian Lindenberg}
+
+
+
+\begin{document}
+
+\kostspieligmaketitle
+
+\tableofcontents
+\pagebreak
+% \startapendix
+
+\chapter{General Questions}
+
+\begin{enumerate}\item We issued the following ten queries:
+				\begin{enumerate}
+					\renewcommand{\labelenumii}{\Roman{enumii}}
+					\item \texttt{google glasses}
+					\item \texttt{google glasses news}
+					\item \texttt{google glasses nytimes}
+					\item \texttt{pidoco}
+					\item \texttt{pidoco usability}
+					\item \texttt{uci ics information retrieval winter 2011 assignment 2 christina lopes}
+					\item \texttt{cordoba}
+					\item \texttt{cordoba -argentina}
+					\item $x^2 + 3x + 4 = 0$
+					\item \texttt{sun}
+				\end{enumerate}
+				Formulating the first three queries, we tried to find the New York Times article\footnote{\url{http://www.nytimes.com/2010/11/28/business/28borker.html?pagewanted=all}} Professor Lopes talked about in class. Without specifying the name of the newspaper (first and second query), neither Google nor Bing listed the article on their first result page. After appending \texttt{nytimes} to the query string, both search engines ranked the article as the third result. In addition, a follow-up article was listed as the first (Bing) and fourth (Google) result, respectively.
+				
+				The fourth query searched for a specific start-up company based in Berlin, Germany. On Google, all results on the first page were closely related to that company (website, Wikipedia article, Facebook page, Twitter account, magazine articles, etc.). Bing, on the other hand, listed only the company website and the Wikipedia article; all other results of the first page were about ``Pisco'' and, thus, irrelevant to us. Consequently, the Bing query had to be refined by adding the term \texttt{usability} (fifth query).
+				
+				5 Google corrected the name - cristina
+				9 bing gives answer~ :)
+				10 general term. Both look for different meanings
+				\todo{5 more queries, some with numerous keywords}
+				
+				\todo{Conclusion, what do we like better?}
+	\item One feature that we like is that Bing automatically updates the tab bar according to the search query  terms, so the search space is not cluttered with irrelevant navigational links. \\
+		Furthermore, in some cases, Bing offers summarization that fulfills its purpose better than its pendant on Google. For example, searching for \texttt{ford mustang} yields and overview of the car specifications, a picture, and suggested links, while Google presents three ads to its users.
+	\item
+	\item A less well-known search engine is \url{www.blekko.com}. Users of blekko narrow down their searches by adding so-called ``slashtags'' to their queries. A slashtag, such as \texttt{/cars} or \texttt{/law}, restricts the search result to websites of that particular topic. Besides numerous pre-defined topics, users can define and even share their own slashtags by associating websites with them. Built-in slashtags can further filter the search results. To name only a few examples, \texttt{/blog} restricts the type of a website, \texttt{/people} searches only for websites related to persons, and \texttt{/flickr} shows results from the image hosting website. Of course, multiple slashtags can be combined in one query.
+	
+	Example queries:
+	\begin{itemize}
+		\item \texttt{uci ics /people}
+		\item \texttt{uci /traffic}
+		\item \texttt{los angeles /baseball}
+	\end{itemize}
+ \end {enumerate}
+\chapter{Programming Questions}
+
+\pagebreak
+\begin{thebibliography}{XXX}
+\bibitem{1} {\it Watever}
+
+
+\end{thebibliography}
+
+
+
+\end{document}
