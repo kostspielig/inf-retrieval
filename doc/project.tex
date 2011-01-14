@@ -90,7 +90,16 @@
 	\item One feature that we like is that Bing automatically updates the tab bar according to the search query  terms, so that the search space is not cluttered with irrelevant navigational links. 
 	
 		Furthermore, in some cases, Bing offers a summarization that fulfills its purpose better than its pendant on Google. For example, searching for \texttt{ford mustang} yielded an overview of the car specifications, a picture, and suggested links, while Google presented three ads to its users at the very top of the list followed only by the usual list of websites and no summarization.
-	\item
+	
+	\item Currently, most search engines present their results as a list. This representation is easy to construct but might not be the most convenient for the user. Our tenth query gave us the idea to automatically group search results according to more general topics they can be assigned to. It would be the task of the search engine to apply heuristics to ``guess'' the topic of a website. Figure \ref{thinkbot} shows a possible user interface for presenting the results of our tenth query.
+	
+			 \begin{figure}
+			 		\centering
+					\includegraphics[width=0.9\columnwidth]{images/thinkbot.png}%
+					\caption{Grouping of search results according to more general topics}%
+					\label{thinkbot}%
+				\end{figure}
+	
 	\item A less well-known search engine is \url{www.blekko.com}. Users of blekko narrow down their searches by adding so-called ``slashtags'' to their queries. A slashtag, such as \texttt{/cars} or \texttt{/law}, restricts the search result to websites of that particular topic. Besides numerous pre-defined topics, users can define and even share their own slashtags by associating websites with them. Built-in slashtags can further filter the search results. To name only a few examples, \texttt{/blog} restricts the type of a website, \texttt{/people} searches only for websites related to persons, and \texttt{/flickr} shows results from the image hosting website. Of course, multiple slashtags can be combined in one query.
 	
 	Example queries:
@@ -100,14 +109,28 @@
 		\item \texttt{los angeles /baseball}
 	\end{itemize}
  \end {enumerate}
+
+
+
+
 \chapter{Programming Questions}
 
-\pagebreak
-\begin{thebibliography}{XXX}
-\bibitem{1} {\it Watever}
+\begin{enumerate}
+	\item	\begin{enumerate}
+					\item \todo{Describe complexity of palindrome algorithm}
+					\item In order to find the longest lipogram in a given text file, our algorithm scans the text only once. Each character is regarded separately: \begin{itemize}
+							\item If a valid character, i.e. a letter of the English alphabet but not \texttt{e} or \texttt{E}, is detected, it is added to the current lipogram.
+							\item If an invalid character, i.e. a non-ASCII symbol, is detected, it is added to the current lipogram and the counter for invalid characters increases.
+							\item If either \texttt{e} or \texttt{E} is detected, the lipogram is compared to the currently longest lipogram(s). If it is equally long or even longer and it consists of less then 30\% invalid characters, it is added to the list of longest lipograms. If it is longer, the smaller ones are discarded.
+						\end{itemize}
+						Since the algorithm runs only once through the text file and examines each detected character only once, the runtime complexity of our algorithm is $O(n)$.
+				\end{enumerate}
+\end{enumerate}
 
-
-\end{thebibliography}
+%\pagebreak
+%\begin{thebibliography}{XXX}
+%\bibitem{1} {\it Watever}
+%\end{thebibliography}
 
 
 
