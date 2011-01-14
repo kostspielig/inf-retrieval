@@ -7,6 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.text.StyleContext.SmallAttributeSet;
 
 /**
  * CS 121 Information Retrieval
@@ -18,11 +23,13 @@ import java.io.InputStreamReader;
  */
 public class Analyzer {
 
+	private static final double THRESHOLD = 0.3;
 	private static final char DEFAULT_LIPOGRAM_LETTER = 'e';
 	private static final String DEFAULT_INPUT = "in.txt";
 	private static final String DEFAULT_OUTPUT = "out.txt";
 	private static final String FILE_ENCODING = "UTF-8";
 	private static final String SEPARATOR = ">==<";
+	private static final String SMALL_SEPARATOR = "><";
 
 	/**
 	 * @param args
@@ -33,7 +40,7 @@ public class Analyzer {
 
 		// detect longest palindrom and lipogram, respectively
 		//String longestPalindrom = detectLongestPalindrom(DEFAULT_INPUT);
-		String longestLipogram = detectLongestLipogram(DEFAULT_INPUT, DEFAULT_LIPOGRAM_LETTER);
+		List<String> longestLipograms = detectLongestLipogram(DEFAULT_INPUT, DEFAULT_LIPOGRAM_LETTER);
 
 		// write results
 		try {
@@ -42,7 +49,7 @@ public class Analyzer {
 			w.newLine();
 			w.write(SEPARATOR);
 			w.newLine();
-			w.write(longestLipogram);
+			writeList(w, longestLipograms);
 			w.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -50,7 +57,29 @@ public class Analyzer {
 
 		endTime = System.currentTimeMillis();
 		System.out.println("Runtime: " + (endTime - startTime));
-		System.out.println(detectLongestPalindrom("another.txt"));
+//		System.out.println(detectLongestPalindrom("another.txt"));
+	}
+
+	/**
+	 * Writes the content of the list using the passed BufferedWriter.
+	 * Elements are separated by SMALL_SEPARATOR.
+	 * 
+	 * @param w
+	 * @param list
+	 * @throws IOException
+	 */
+	private static void writeList(BufferedWriter w, List<String> list)
+			throws IOException {
+		Iterator<String> it = list.iterator();
+		if (it.hasNext()) {
+			w.write(it.next());
+		}
+		while (it.hasNext()) {
+			w.newLine();
+			w.write(SMALL_SEPARATOR);
+			w.newLine();
+			w.write(it.next());
+		}
 	}
 
 	/**
@@ -137,15 +166,14 @@ public class Analyzer {
 	 * Detects the longest lipogram in the provided text file. A lipogram is a sequence of characters that does not contain a particular letter. <br /> 
 	 * <br />
 	 * Both uppercase and lowercase representation of the specified letter will be avoided.
-	 * If two lipograms of equal size exist, the first one is returned.
+	 * If two or more lipograms of equal size exist, all are returned in the order of occurrence.
 	 * 
 	 * @param filePath the path to the text file
 	 * @param letter the letter that shall not be contained in the lipogram 
 	 * @return the longest lipogram
 	 */
-	private static String detectLongestLipogram(String filePath, char letter) {
-		// TODO: if two or more lipograms of equal size exist, return them all
-		String longestLipogram = new String();
+	private static List<String> detectLongestLipogram(String filePath, char letter) {
+		List<String> longestLipograms = new LinkedList<String>();
 		
 		char lcLetter = Character.toLowerCase(letter); 
 		char ucLetter = Character.toUpperCase(letter);
@@ -157,15 +185,15 @@ public class Analyzer {
 							new FileInputStream(filePath), FILE_ENCODING));
 			
 			int currentChrValue; // integer value of the character read
+			int maxLength = 0; // the current length of the longest palindrom(s) 
 			int nrOfIgnoredChrs = 0; // number of irrelevant characters that have been ignored
 			StringBuffer strBuffer = new StringBuffer(); // the current lipogram
 			
 			while ((currentChrValue = br.read()) != -1) {
 				char currentChr = (char) currentChrValue;
-				if (currentChrValue > 127 || currentChr == lcLetter || currentChr == ucLetter) { // forbidden character -> terminate the current lipogram
-					if (strBuffer.length() > longestLipogram.length() && (((double) (nrOfIgnoredChrs/strBuffer.length())) < 0.3)) { // set new longest lipogram if longer and less than 30% of characters have been ignored
-						longestLipogram = strBuffer.toString();
-					}
+				if (currentChr == lcLetter || currentChr == ucLetter) { // forbidden character -> terminate the current lipogram
+					maxLength = updateLongestLipograms(strBuffer,
+							nrOfIgnoredChrs, maxLength, longestLipograms);
 					strBuffer = new StringBuffer();
 					nrOfIgnoredChrs = 0;
 				} else if (legalChar (currentChr)) { // valid character -> append to current lipogram
@@ -176,12 +204,36 @@ public class Analyzer {
 				}
 			}
 
+			updateLongestLipograms(strBuffer, nrOfIgnoredChrs, maxLength, longestLipograms); // in case the longest lipogram is at the very end of the file
+			
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return longestLipogram;
+		
+		return longestLipograms;
+	}
+
+	/**
+	 * Checks whether the passed <code>lipogram</code> is longer than or equally long as the ones stored in the <code>longestLipograms</code>. If so, the list is updated.
+	 * 
+	 * @param lipogram
+	 * @param nrOfIgnoredChrs
+	 * @param maxLength
+	 * @param longestLipograms
+	 * @return the length of the longest lipogram
+	 */
+	private static int updateLongestLipograms(StringBuffer lipogram,
+			int nrOfIgnoredChrs, int maxLength, List<String> longestLipograms) {
+		if (lipogram.length() >= maxLength && ((((double) nrOfIgnoredChrs/lipogram.length())) < THRESHOLD)) { // set new longest lipogram if longer and less than 30% of characters have been ignored
+			if (lipogram.length() > maxLength) { // delete the lipograms stored so far
+				maxLength = lipogram.length();
+				longestLipograms.clear();
+			}
+			longestLipograms.add(lipogram.toString());
+		}
+		return maxLength;
 	}
 
 }
