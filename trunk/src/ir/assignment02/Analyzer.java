@@ -2,16 +2,14 @@ package ir.assignment02;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.text.StyleContext.SmallAttributeSet;
 
 /**
  * CS 121 Information Retrieval
@@ -39,12 +37,12 @@ public class Analyzer {
 		long endTime;
 
 		// detect longest palindrom and lipogram, respectively
-		List<String> longestPalindrom = detectLongestPalindrom(DEFAULT_INPUT);
+		List<String> longestPalindrom = detectLongestPalindromeAlternative(DEFAULT_INPUT);
 		List<String> longestLipograms = detectLongestLipogram(DEFAULT_INPUT, DEFAULT_LIPOGRAM_LETTER);
 
 		// write results
 		try {
-			BufferedWriter w = new BufferedWriter(new FileWriter(new File(DEFAULT_OUTPUT)));
+			BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(DEFAULT_OUTPUT), FILE_ENCODING));
 			//w.write(longestPalindrom);
 			writeList(w, longestPalindrom);
 			w.newLine();
@@ -155,6 +153,76 @@ public class Analyzer {
 	}
 	
 
+	/**
+	 * Detects the longest palindrome in the provided text file.
+	 * 
+	 * @param filePath the path to the text file
+	 * @return the longest palindrome
+	 */
+	private static List<String> detectLongestPalindromeAlternative(String filePath) {
+		String text = IO.getFileContent(filePath);
+		List<String> longestPalindromes = new LinkedList<String>();
+		
+		int maxLength = 0;
+	
+		for (int k=0; k<text.length(); k++) {
+			maxLength = findLongestPalindromeForIndices(text, longestPalindromes, maxLength, k-1, k); // first run checking for even palindromes
+			maxLength = findLongestPalindromeForIndices(text, longestPalindromes, maxLength, k-1, k+1); // second run checking for even palindromes
+		}
+		
+		return longestPalindromes;
+	}
+
+	/**
+	 * Shifts the given pointers i and j stepwise to find the longest palindrome. 
+	 * If j=i+1, palindromes of even length are found. For j=i+2, palindromes of odd length are found.
+	 * 
+	 * @param text
+	 * @param longestPalindromes
+	 * @param maxLength
+	 * @param i
+	 * @param j
+	 * @return the length of the longest detected palindrome
+	 */
+	private static int findLongestPalindromeForIndices(String text,
+			List<String> longestPalindromes, int maxLength, int i, int j) {
+		int nrOfIgnoredChrs = 0;
+
+		while (i >= 0 && j < text.length()) {
+
+			char iChar = Character.toLowerCase(text.charAt(i));
+			char jChar = Character.toLowerCase(text.charAt(j));
+
+			while(!legalChar(iChar) && i > 0){ //ignore character
+				i--;
+				nrOfIgnoredChrs++;
+				iChar = Character.toLowerCase(text.charAt(i));
+			}
+			while(!legalChar(jChar) && j < text.length()-1){
+				j++;
+				nrOfIgnoredChrs++;
+				jChar = Character.toLowerCase(text.charAt(j));
+			}
+
+			if (iChar == jChar) { // extend palindrome
+				int len = j - i + 1;
+				if (len >= maxLength && (((double) (nrOfIgnoredChrs/len)) < THRESHOLD)) {
+					if (len > maxLength) {
+						maxLength = len;
+						longestPalindromes.clear();	
+					}
+					longestPalindromes.add(text.substring(i,j+1));
+				}
+
+				i--;
+				j++;
+			} else { 
+				break; 
+			}
+		}
+		return maxLength;
+	}
+	
 	private static boolean isAscii(char c)
 	{
 		int value = (int) c;
