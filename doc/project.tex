@@ -127,10 +127,14 @@
 
 \begin{enumerate}
 	\item	\begin{enumerate}
-					\item \todo{Describe complexity of palindrome algorithm}
+					\item Our algorithm to detect the longest palindrome in a text file assumes to know the center of a palindrome. From thereon, the algorithm expands the current palindrome stepwise by working with two indices that point to the left and right end, respectively. As long as the characters at the two ends match, the algorithm extends the palindrome. Invalid characters, i.e. non-letter symbols, are ignored and the counter for invalid characters increases. As soon as the two ends no longer match, the palindrome is compared to the currently longest palindrome(s). If it is equally long or even longer and it consists of less then 30\% invalid characters, it is added to the list of longest lipograms. If it is longer, the smaller ones are discarded.
+					
+					Palindromes can be of even or odd length. In the former case, the center of the palindrome is a gap between two characters; in the latter, the center is a character. Thus, an outer loop iterates over the characters of the text file and invokes the detection of palindromes for each gap and the following character separately. Each invoked detection is a loop, as well, since it continuously expands the current palindrome. In the worst case, all characters have to be considered. 
+					
+					Let $n$ be the total number of characters in the text file. The resulting runtime is, then, $O(n*(n+n))=O(n^2)$. 
 					\item In order to find the longest lipogram in a given text file, our algorithm scans the text only once. Each character is regarded separately: \begin{itemize}
 							\item If a valid character, i.e. a letter of the English alphabet but not \texttt{e} or \texttt{E}, is detected, it is added to the current lipogram.
-							\item If an invalid character, i.e. a non-ASCII symbol, is detected, it is added to the current lipogram and the counter for invalid characters increases.
+							\item If an invalid character, i.e. a non-letter symbol, is detected, it is added to the current lipogram and the counter for invalid characters increases.
 							\item If either \texttt{e} or \texttt{E} is detected, the lipogram is compared to the currently longest lipogram(s). If it is equally long or even longer and it consists of less then 30\% invalid characters, it is added to the list of longest lipograms. If it is longer, the smaller ones are discarded.
 						\end{itemize}
 						Since the algorithm runs only once through the text file and examines each detected character only once, the runtime complexity of our algorithm is $O(n)$.
