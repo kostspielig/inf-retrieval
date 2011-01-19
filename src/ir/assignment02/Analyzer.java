@@ -37,13 +37,12 @@ public class Analyzer {
 		long endTime;
 
 		// detect longest palindrom and lipogram, respectively
-		List<String> longestPalindrom = detectLongestPalindromeAlternative(DEFAULT_INPUT);
+		List<String> longestPalindrom = detectLongestPalindrome(DEFAULT_INPUT);
 		List<String> longestLipograms = detectLongestLipogram(DEFAULT_INPUT, DEFAULT_LIPOGRAM_LETTER);
 
 		// write results
 		try {
 			BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(DEFAULT_OUTPUT), FILE_ENCODING));
-			//w.write(longestPalindrom);
 			writeList(w, longestPalindrom);
 			w.newLine();
 			w.write(SEPARATOR);
@@ -55,7 +54,7 @@ public class Analyzer {
 		}
 
 		endTime = System.currentTimeMillis();
-		System.out.println("Runtime: " + (endTime - startTime));
+		System.out.println("Runtime: " + (endTime - startTime) + "ms");
 	}
 
 	/**
@@ -78,80 +77,7 @@ public class Analyzer {
 			w.newLine();
 			w.write(it.next());
 		}
-	}
-
-	/**
-	 * Detects the longest palindrom in the provided text file.
-	 * 
-	 * @param filePath the path to the text file
-	 * @return the longest palindrom
-	 */
-	private static List<String> detectLongestPalindrom(String filePath) {
-		
-		String text = IO.getFileContent(filePath);
-		List<String> longestPalindrom = new LinkedList<String>();
-		StringBuffer pal = new StringBuffer(); 
-		
-		int textLength = text.length();
-		int nrOfIgnoredChrs = 0; 
-		int maxLength = 0;
-		
-		int i, j;
-		i = j = 0;
-		boolean first = true;
-		for (int k = 1; k < textLength -1; k++ ) 
-		{
-			j = k + 1;
-			i = k - 1;
-			nrOfIgnoredChrs=0;
-			first = true;
-			
-		 	while (i >= 0 && j < textLength-1)
-		 	{
-		 		char iChar = Character.toLowerCase(text.charAt(i));
-		 		char jChar = Character.toLowerCase(text.charAt(j));
-		 		char kChar = Character.toLowerCase(text.charAt(k));
-		 		while(!legalChar(iChar) && i > 0){ //ignore character
-		 			i--;
-		 			nrOfIgnoredChrs++;
-		 			iChar = Character.toLowerCase(text.charAt(i));
-		 			}
-		 		while(!legalChar(jChar) && j < textLength-1){
-		 			j++;
-		 			nrOfIgnoredChrs++;
-		 			jChar = Character.toLowerCase(text.charAt(j));
-		 		}
-
-		 		if (first) {
-		 			if(iChar == kChar ) {
-		 				j = k;
-		 				jChar = kChar;
-		 			}
-		 			first = false;
-		 		}
-		 		
-		 		if (iChar == jChar){  
-		 			j++; i--;
-		 		} else break;
-		 		
-		 		maxLength = pal.length();
-		 		int len = (j - (i+1));
-		 		if (len >= maxLength && (((double) (nrOfIgnoredChrs/len)) < THRESHOLD)){
-		 			pal = new StringBuffer();
-		 			pal.append(text.substring(i+1,j));
-		 			
-		 			if ((j-(i+1)) > maxLength)
-		 				longestPalindrom.clear();	
-					longestPalindrom.add(pal.toString());
-		 			
-		 		}
-		 		first = false;
-		 	}
-		}
-		
-		return longestPalindrom;
-	}
-	
+	}	
 
 	/**
 	 * Detects the longest palindrome in the provided text file.
@@ -159,7 +85,7 @@ public class Analyzer {
 	 * @param filePath the path to the text file
 	 * @return the longest palindrome
 	 */
-	private static List<String> detectLongestPalindromeAlternative(String filePath) {
+	private static List<String> detectLongestPalindrome(String filePath) {
 		String text = IO.getFileContent(filePath);
 		List<String> longestPalindromes = new LinkedList<String>();
 		
@@ -193,7 +119,7 @@ public class Analyzer {
 			char iChar = Character.toLowerCase(text.charAt(i));
 			char jChar = Character.toLowerCase(text.charAt(j));
 
-			while(!legalChar(iChar) && i > 0){ //ignore character
+			while(!legalChar(iChar) && i > 0){ //ignore character // alternative: if non ASCII shall not be skipped but rather split, check for !isAscii(iChar) first
 				i--;
 				nrOfIgnoredChrs++;
 				iChar = Character.toLowerCase(text.charAt(i));
@@ -269,7 +195,7 @@ public class Analyzer {
 			
 			while ((currentChrValue = br.read()) != -1) {
 				char currentChr = (char) currentChrValue;
-				if (currentChr == lcLetter || currentChr == ucLetter) { // forbidden character -> terminate the current lipogram
+				if (currentChr == lcLetter || currentChr == ucLetter) { // forbidden character -> terminate the current lipogram // if non-ASCII chars shall not be skipped but rather split, check also for !isAscii(iChar)
 					maxLength = updateLongestLipograms(strBuffer,
 							nrOfIgnoredChrs, maxLength, longestLipograms);
 					strBuffer = new StringBuffer();
