@@ -39,13 +39,14 @@ public class Analyzer {
 		long endTime;
 
 		// detect longest palindrom and lipogram, respectively
-		//String longestPalindrom = detectLongestPalindrom(DEFAULT_INPUT);
+		List<String> longestPalindrom = detectLongestPalindrom(DEFAULT_INPUT);
 		List<String> longestLipograms = detectLongestLipogram(DEFAULT_INPUT, DEFAULT_LIPOGRAM_LETTER);
 
 		// write results
 		try {
 			BufferedWriter w = new BufferedWriter(new FileWriter(new File(DEFAULT_OUTPUT)));
 			//w.write(longestPalindrom);
+			writeList(w, longestPalindrom);
 			w.newLine();
 			w.write(SEPARATOR);
 			w.newLine();
@@ -57,7 +58,6 @@ public class Analyzer {
 
 		endTime = System.currentTimeMillis();
 		System.out.println("Runtime: " + (endTime - startTime));
-//		System.out.println(detectLongestPalindrom("another.txt"));
 	}
 
 	/**
@@ -88,14 +88,15 @@ public class Analyzer {
 	 * @param filePath the path to the text file
 	 * @return the longest palindrom
 	 */
-	private static String detectLongestPalindrom(String filePath) {
+	private static List<String> detectLongestPalindrom(String filePath) {
 		
 		String text = IO.getFileContent(filePath);
-		String longestPalindrom = "";
-		int textLength = text.length();
+		List<String> longestPalindrom = new LinkedList<String>();
+		StringBuffer pal = new StringBuffer(); 
 		
- 
+		int textLength = text.length();
 		int nrOfIgnoredChrs = 0; 
+		int maxLength = 0;
 		
 		int i, j;
 		i = j = 0;
@@ -123,8 +124,6 @@ public class Analyzer {
 		 			jChar = Character.toLowerCase(text.charAt(j));
 		 		}
 
-		 		if ( !isAscii(iChar) || !isAscii(jChar)) // illegal character!
-		 			break;
 		 		if (first) {
 		 			if(iChar == kChar ) {
 		 				j = k;
@@ -137,9 +136,16 @@ public class Analyzer {
 		 			j++; i--;
 		 		} else break;
 		 		
-		 		if ((j - (i+1))> longestPalindrom.length() && (((double) (nrOfIgnoredChrs/(j- (i+1)))) < 0.3)){
-		 			longestPalindrom = text.substring(i+1,j);
-		 			System.out.println("longest palindom: " + longestPalindrom + (j- (i+1)) + " i:"+i+" j:"+j);
+		 		maxLength = pal.length();
+		 		int len = (j - (i+1));
+		 		if (len >= maxLength && (((double) (nrOfIgnoredChrs/len)) < THRESHOLD)){
+		 			pal = new StringBuffer();
+		 			pal.append(text.substring(i+1,j));
+		 			
+		 			if ((j-(i+1)) > maxLength)
+		 				longestPalindrom.clear();	
+					longestPalindrom.add(pal.toString());
+		 			
 		 		}
 		 		first = false;
 		 	}
@@ -155,10 +161,14 @@ public class Analyzer {
 		
 		return (value <= 127);
 	}
-	
+	/**
+	 * Detects whether the given char is legal [A-Za-z]
+	 * 
+	 * @param c character
+	 * @return 
+	 */
 	private static boolean legalChar (char c)
 	{
-		
 		return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 	}
 	
@@ -211,7 +221,6 @@ public class Analyzer {
 			e.printStackTrace();
 		}
 		
-		
 		return longestLipograms;
 	}
 
@@ -226,14 +235,15 @@ public class Analyzer {
 	 */
 	private static int updateLongestLipograms(StringBuffer lipogram,
 			int nrOfIgnoredChrs, int maxLength, List<String> longestLipograms) {
-		if (lipogram.length() >= maxLength && ((((double) nrOfIgnoredChrs/lipogram.length())) < THRESHOLD)) { // set new longest lipogram if longer and less than 30% of characters have been ignored
-			if (lipogram.length() > maxLength) { // delete the lipograms stored so far
-				maxLength = lipogram.length();
-				longestLipograms.clear();
-			}
+			if (lipogram.length() >= maxLength && ((((double) nrOfIgnoredChrs/lipogram.length())) < THRESHOLD)) { // set new longest lipogram if longer and less than 30% of characters have been ignored
+				if (lipogram.length() > maxLength) { // delete the lipograms stored so far
+					maxLength = lipogram.length();
+					longestLipograms.clear();
+				}
 			longestLipograms.add(lipogram.toString());
 		}
 		return maxLength;
 	}
+	
 
 }
