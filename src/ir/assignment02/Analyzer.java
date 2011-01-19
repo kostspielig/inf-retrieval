@@ -235,11 +235,11 @@ public class Analyzer {
 	 */
 	private static int updateLongestLipograms(StringBuffer lipogram,
 			int nrOfIgnoredChrs, int maxLength, List<String> longestLipograms) {
-			if (lipogram.length() >= maxLength && ((((double) nrOfIgnoredChrs/lipogram.length())) < THRESHOLD)) { // set new longest lipogram if longer and less than 30% of characters have been ignored
-				if (lipogram.length() > maxLength) { // delete the lipograms stored so far
-					maxLength = lipogram.length();
-					longestLipograms.clear();
-				}
+		if (lipogram.length() > 0 && lipogram.length() >= maxLength && ((((double) nrOfIgnoredChrs/lipogram.length())) < THRESHOLD)) { // set new longest lipogram if longer and less than 30% of characters have been ignored
+			if (lipogram.length() > maxLength) { // delete the lipograms stored so far
+				maxLength = lipogram.length();
+				longestLipograms.clear();
+			}
 			longestLipograms.add(lipogram.toString());
 		}
 		return maxLength;
