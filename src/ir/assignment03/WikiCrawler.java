@@ -30,7 +30,7 @@ public class WikiCrawler extends WebCrawler {
 	
 	public WikiCrawler(String hostname) {
 		this.host = hostname; 
-		this.proc = new WikiProcessor();
+		this.proc = new WikiProcessor(hostname);
 	}
 
 	public boolean shouldVisit(WebURL url) {
