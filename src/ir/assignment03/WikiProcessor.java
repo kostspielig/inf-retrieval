@@ -1,6 +1,11 @@
 package ir.assignment03;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 /**
  * CS 121 Information Retrieval
@@ -43,6 +48,8 @@ public class WikiProcessor {
 	 * Delimiters used for tokenizing the content
 	 */
 	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;!?'~@#*+§$%&()=`´{[]}|<>";
+	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
+	private static final String FILE_ENCODING = "UTF-8";
 	
 	/**
 	 * The full path leading to articles (combination of host and relative path)
@@ -52,6 +59,7 @@ public class WikiProcessor {
 	 * The Porter Stemmer used to stem tokens
 	 */
 	private Stemmer stemmer;
+	private Set<String> stopwords;
 
 	/**
 	 * Initiates an instance of {@link WikiProcessor}.
@@ -64,6 +72,32 @@ public class WikiProcessor {
 		}
 		this.articlePath = hostname + DEFAULT_PATH;
 		this.stemmer = new Stemmer();
+		this.stopwords = loadStopwords();
+	}
+
+	/**
+	 * Loads and stems user-defined stopwords.
+	 * 
+	 * @return stemmed stopwords
+	 */
+	private Set<String> loadStopwords() {
+		try {
+			Set<String> stopwords = new TreeSet<String>();
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+							new FileInputStream(DEFAULT_STOPWORDS_FILE), FILE_ENCODING));
+			String line;
+			while ((line = br.readLine()) != null) {
+				char[] word = line.toCharArray();
+				this.stemmer.add(word, word.length);
+				this.stemmer.stem();
+				stopwords.add(stemmer.toString());
+			}
+			return stopwords;
+		} catch (Exception e) { // problems reading file, return empty set instead
+			e.printStackTrace();
+			return new TreeSet<String>();
+		}		
 	}
 
 	/**
@@ -80,7 +114,9 @@ public class WikiProcessor {
 				char[] token = tokenizer.nextToken().toCharArray();
 				this.stemmer.add(token,token.length);
 				this.stemmer.stem();
-//				System.out.println(String.valueOf(token) + " - " + this.stemmer.toString());
+				if (!stopwords.contains(this.stemmer.toString())) { // ignore stop words
+					System.out.println(String.valueOf(token) + " - " + this.stemmer.toString());	
+				}
 			}
 		}
 	}
