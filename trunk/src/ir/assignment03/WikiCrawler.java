@@ -14,11 +14,23 @@ import edu.uci.ics.crawler4j.url.WebURL;
  */
 public class WikiCrawler extends WebCrawler {
 
+	private static final String DEFAULT_HOST = "http://en.wikipedia.org/";
+
 	Pattern filters = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
 			+ "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"
 			+ "|rm|smil|wmv|swf|wma|zip|rar|gz))$");
+	
+	
+	private String host;
+	private WikiProcessor proc;
 
 	public WikiCrawler() {
+		this(DEFAULT_HOST);
+	}
+	
+	public WikiCrawler(String hostname) {
+		this.host = hostname; 
+		this.proc = new WikiProcessor();
 	}
 
 	public boolean shouldVisit(WebURL url) {
@@ -26,11 +38,17 @@ public class WikiCrawler extends WebCrawler {
 		if (filters.matcher(href).matches()) {
 			return false;
 		}
-		if (href.startsWith("http://www.cnn.com/")) {
+		if (href.startsWith(this.host)) {
 			return true;
 		}
 		return false;
 	}
+	
+	// This function is called by controller before finishing the job.
+	public void onBeforeExit() {
+		this.proc.report();
+	}
+
 	
 	public void visit(Page page) {
 		int docid = page.getWebURL().getDocid();
@@ -45,6 +63,8 @@ public class WikiCrawler extends WebCrawler {
 		System.out.println("Number of links: " + links.size());
 		System.out.println("Docid of parent page: " + parentDocid);
 		System.out.println("=============");
+		
+		this.proc.process(url, text);
 	}	
 }
 
