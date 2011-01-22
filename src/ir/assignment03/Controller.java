@@ -18,11 +18,11 @@ public class Controller {
 			int numberOfCrawlers = Integer.parseInt(args[1]);
 			
 			CrawlController controller = new CrawlController(rootFolder);		
-			controller.addSeed("http://www.cnn.com/");
+			controller.addSeed("http://en.wikipedia.org/wiki/Category:Bing");
+			controller.addSeed("http://en.wikipedia.org/wiki/Category:Google");
 			
 			// Be polite:
-			// Make sure that we don't send more than 5 requests per second (200 milliseconds between requests).
-			controller.setPolitenessDelay(200);
+			controller.setPolitenessDelay(1000);
 			
 			// Do you need to set a proxy?
 			// If so, you can uncomment the following line
