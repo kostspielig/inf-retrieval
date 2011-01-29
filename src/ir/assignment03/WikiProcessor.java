@@ -21,7 +21,7 @@ import java.util.TreeSet;
  * 
  * The {@link WikiProcessor} processes web pages crawled by {@link WikiCrawler}.
  * 
- * @author María Carrasco
+ * @author MarÃ­a Carrasco
  * @author Fabian Lindenberg
  */
 public class WikiProcessor {
@@ -55,8 +55,8 @@ public class WikiProcessor {
 	/**
 	 * Delimiters used for tokenizing the content
 	 */
-	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;/!?'~@#*+§$%&()=`´{[]}|<>";
-	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
+	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;/!?'~@#*+Â§$%&()=`Â´{[]}|<>";
+	private static final String SPECIAL_CHARS = "[!\"Â§$%&/()=?`Â´{}\\[\\]\\^Â°*+~'#-_.:,;<>|]+";
 	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 	private static final String FILE_ENCODING = "UTF-8";
 	private static final int MAX_SIZE = 1000; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
@@ -119,39 +119,36 @@ public class WikiProcessor {
 		}		
 	}
 
+	public boolean shouldVisit(String url) {
+		String title = extractTitle(url);
+		return (title != null && isContentPage(title) && isValidTitle(title));
+	}
+	
 	/**
 	 * Process the passed <code>content</code> of the web page with the URL <code>url</code>.
 	 * 
 	 * @param url the URL of the web page
 	 * @param content the content of the web page
 	 */
-	public boolean process(String url, String content) {
-		boolean success = false;
-
-		String title = extractTitle(url);
-		if (title != null && isContentPage(title) && isValidTitle(title)) {
-			StringTokenizer tokenizer = new StringTokenizer(content,TOKEN_DELIMITER); // tokenize content
-			while (tokenizer.hasMoreTokens()) { // stem tokens
-				flushIfNecessary (); // write hash map to file, if necessary
-				String token = tokenizer.nextToken().toLowerCase();
-				if (isValidToken(token)) {
-					char[] tokenChrAr = token.toCharArray();
-					this.stemmer.add(tokenChrAr,tokenChrAr.length);
-					this.stemmer.stem();
-					String stem = this.stemmer.toString();
-					if (!stopwords.contains(stem)) { // ignore stop words
-						Integer freq = this.frequencies.get(stem);
-						if (freq != null)
-							this.frequencies.put(stem, ++freq);
-						else
-							this.frequencies.put(stem, 1);
-					}
+	public void process(String url, String content) {
+		StringTokenizer tokenizer = new StringTokenizer(content,TOKEN_DELIMITER); // tokenize content
+		while (tokenizer.hasMoreTokens()) { // stem tokens
+			flushIfNecessary (); // write hash map to file, if necessary
+			String token = tokenizer.nextToken().toLowerCase();
+			if (isValidToken(token)) {
+				char[] tokenChrAr = token.toCharArray();
+				this.stemmer.add(tokenChrAr,tokenChrAr.length);
+				this.stemmer.stem();
+				String stem = this.stemmer.toString();
+				if (!stopwords.contains(stem)) { // ignore stop words
+					Integer freq = this.frequencies.get(stem);
+					if (freq != null)
+						this.frequencies.put(stem, ++freq);
+					else
+						this.frequencies.put(stem, 1);
 				}
 			}
-			success = true;
 		}
-
-		return success;
 	}
 
 
@@ -189,13 +186,13 @@ public class WikiProcessor {
 	}
 
 	/**
-	 * Checks whether the token consists only of special characters.
+	 * Checks whether the token is longer than one character and consists not only of special characters.
 	 * 
 	 * @param token
-	 * @return true if it does NOT consist only of special characters
+	 * @return true if it is longer than one char and does NOT consist only of special characters
 	 */
 	private boolean isValidToken(String token) {
-		return !token.matches(SPECIAL_CHARS);
+		return token.length() > 1 && !token.matches(SPECIAL_CHARS);
 	}
 
 	/**

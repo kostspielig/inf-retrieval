@@ -16,7 +16,7 @@ public class WikiCrawler extends WebCrawler {
 
 	private static final String DEFAULT_HOST = "http://en.wikipedia.org/";
 
-	private static final int LIMIT_FOR_CRAWLED_PAGES = 50;
+	private static final int LIMIT_FOR_CRAWLED_PAGES = 100;
 	private static final int REPORT_STEPS = 10;
 
 	private static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
@@ -41,14 +41,15 @@ public class WikiCrawler extends WebCrawler {
 			this.proc.report();
 			System.exit(0);
 		}
+		
 		String href = url.getURL().toLowerCase();
-		if (FILTERS.matcher(href).matches()) {
-			return false;
-		}
 		if (href.startsWith(this.host)) {
 			return true;
 		}
-		return false;
+		if (FILTERS.matcher(href).matches()) {
+			return false;
+		}
+		return this.proc.shouldVisit(href);
 	}
 	
 	// This function is called by controller before finishing the job.
@@ -70,9 +71,9 @@ public class WikiCrawler extends WebCrawler {
 //		System.out.println("Docid of parent page: " + parentDocid);
 //		System.out.println("=============");
 		
-		if (this.proc.process(url, text)) {
-			NUMBER_CRAWLED_PAGES.incrementAndGet();
-		} 
+		this.proc.process(url, text);
+		NUMBER_CRAWLED_PAGES.incrementAndGet();
+		
 		if (NUMBER_CRAWLED_PAGES.get() % REPORT_STEPS == 0) {
 			System.out.println("Pages crawled so far: " + NUMBER_CRAWLED_PAGES);
 		}
