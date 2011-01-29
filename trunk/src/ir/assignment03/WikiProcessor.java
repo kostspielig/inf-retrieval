@@ -221,20 +221,22 @@ public class WikiProcessor {
 	 */
 	private void writeToFile() 
 	{
-		try {
-			File output = new File(FILE_PATH +"crawler" + crawlerId + "_" + fileNumber + ".txt");
-			File parentDir = output.getParentFile();
-			if(! parentDir.exists()) 
-				parentDir.mkdirs();
-			BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
-			for(Map.Entry<String, Integer> pair : this.frequencies.entrySet()) {
-				w.write(pair.getKey()+"\t"+ pair.getValue());
-				w.newLine();
+		if (this.frequencies.size() > 0) {
+			try {
+				File output = new File(FILE_PATH +"crawler" + crawlerId + "_" + fileNumber + ".txt");
+				File parentDir = output.getParentFile();
+				if(! parentDir.exists()) 
+					parentDir.mkdirs();
+				BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
+				for(Map.Entry<String, Integer> pair : this.frequencies.entrySet()) {
+					w.write(pair.getKey()+"\t"+ pair.getValue());
+					w.newLine();
+				}
+				w.close();
+				this.fileNumber ++;
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			w.close();
-			this.fileNumber ++;
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
