@@ -8,14 +8,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
 
 
 /**
@@ -58,11 +55,13 @@ public class WikiProcessor {
 	/**
 	 * Delimiters used for tokenizing the content
 	 */
-	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;!?'~@#*+§$%&()=`´{[]}|<>";
+	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;/!?'~@#*+§$%&()=`´{[]}|<>";
+	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
 	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 	private static final String FILE_ENCODING = "UTF-8";
-	private static final int MAX_SIZE = 10; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
+	private static final int MAX_SIZE = 1000; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
 	private static final String FILE_PATH = "temp" + File.separator;
+	private static final CharSequence[] REQUIRED_CHARS = {"c","l"};
 
 
 	private int crawlerId;
@@ -130,18 +129,14 @@ public class WikiProcessor {
 		boolean success = false;
 
 		String title = extractTitle(url);
-        //Pattern p = Pattern.compile("[^A-Za-z|\\-|\\S]");
-		if (title != null && isContentPage(title) && title.contains("c") && title.contains("l")) {
+		if (title != null && isContentPage(title) && isValidTitle(title)) {
 			StringTokenizer tokenizer = new StringTokenizer(content,TOKEN_DELIMITER); // tokenize content
 			while (tokenizer.hasMoreTokens()) { // stem tokens
-
-				// TODO: check for single characters like / - and so on
-				flushIfNecessary ();
-				//String[] words = p.split(tokenizer.nextToken().toLowerCase());
-				//for(String a: words){
-					//char[] token = a.toCharArray();
-					char[] token = tokenizer.nextToken().toLowerCase().toCharArray();
-					this.stemmer.add(token,token.length);
+				flushIfNecessary (); // write hash map to file, if necessary
+				String token = tokenizer.nextToken().toLowerCase();
+				if (isValidToken(token)) {
+					char[] tokenChrAr = token.toCharArray();
+					this.stemmer.add(tokenChrAr,tokenChrAr.length);
 					this.stemmer.stem();
 					String stem = this.stemmer.toString();
 					if (!stopwords.contains(stem)) { // ignore stop words
@@ -150,7 +145,7 @@ public class WikiProcessor {
 							this.frequencies.put(stem, ++freq);
 						else
 							this.frequencies.put(stem, 1);
-					//}
+					}
 				}
 			}
 			success = true;
@@ -160,11 +155,47 @@ public class WikiProcessor {
 	}
 
 
+	/**
+	 * Determines whether the article is a content article based on the structure of its title.  
+	 * 
+	 * @param title the title of the article
+	 * @return true if the article is a content article, false otherwise
+	 */
+	private boolean isContentPage(String title) {
+		return !title.matches(DIFFERENT_TYPES);
+	}
+
+	/**
+	 * Checks whether the title contains at least one of the required character sequences.
+	 * 
+	 * @param title
+	 * @return true if the title contains at least one of REQUIRED_CHARS; false otherwise
+	 */
+	private boolean isValidTitle(String title) {
+		title = title.toLowerCase();
+		for (CharSequence c : REQUIRED_CHARS) {
+			if (title.contains(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void flushIfNecessary() {
 		if(this.frequencies.size() > MAX_SIZE){
-			fileWriter();
+			writeToFile();
 			this.frequencies.clear();
 		}
+	}
+
+	/**
+	 * Checks whether the token consists only of special characters.
+	 * 
+	 * @param token
+	 * @return true if it does NOT consist only of special characters
+	 */
+	private boolean isValidToken(String token) {
+		return !token.matches(SPECIAL_CHARS);
 	}
 
 	/**
@@ -181,27 +212,16 @@ public class WikiProcessor {
 	}
 
 	/**
-	 * Determines whether the article is a content article based on the structure of its title.  
-	 * 
-	 * @param title the title of the article
-	 * @return true if the article is a content article, false otherwise
-	 */
-	private boolean isContentPage(String title) {
-		return !title.matches(DIFFERENT_TYPES);
-	}
-
-	/**
 	 * Print a final report of all processed pages.
 	 */
 	public void report() {
-		// TODO Auto-generated method stub
-		System.out.println("final report");
+		writeToFile();
 	}
 
 	/**
-	 * 
+	 * Writes content of hash map to a new file.
 	 */
-	public void fileWriter() 
+	private void writeToFile() 
 	{
 		try {
 			File output = new File(FILE_PATH +"crawler" + crawlerId + "_" + fileNumber + ".txt");
