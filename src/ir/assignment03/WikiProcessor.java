@@ -1,11 +1,22 @@
 package ir.assignment03;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
+
 
 /**
  * CS 121 Information Retrieval
@@ -26,31 +37,36 @@ public class WikiProcessor {
 	 * Prefixes of all pages other than content articles
 	 */
 	private static final String DIFFERENT_TYPES = "(" +
-													"(Category)" +
-													"|(Category_talk)" +
-													"|(File)" +
-													"|(Image_talk)" +
-													"|(Help)" +
-													"|(Media)" +
-													"|(MediaWiki)" +
-													"|(MediaWiki_talk)" +
-													"|(Portal)" +
-													"|(Special)" +
-													"|(Talk)" +
-													"|(Template)" +
-													"|(Template_talk)" +
-													"|(User)" +
-													"|(User_talk)" +
-													"|(Wikipedia)" +
-													"|(Wikipedia_talk)" +
-													"):.*";
+	"(Category)" +
+	"|(Category_talk)" +
+	"|(File)" +
+	"|(Image_talk)" +
+	"|(Help)" +
+	"|(Media)" +
+	"|(MediaWiki)" +
+	"|(MediaWiki_talk)" +
+	"|(Portal)" +
+	"|(Special)" +
+	"|(Talk)" +
+	"|(Template)" +
+	"|(Template_talk)" +
+	"|(User)" +
+	"|(User_talk)" +
+	"|(Wikipedia)" +
+	"|(Wikipedia_talk)" +
+	"):.*";
 	/**
 	 * Delimiters used for tokenizing the content
 	 */
 	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;!?'~@#*+§$%&()=`´{[]}|<>";
 	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 	private static final String FILE_ENCODING = "UTF-8";
-	
+	private static final int MAX_SIZE = 10; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
+	private static final String FILE_PATH = "temp" + File.separator;
+
+
+	private int crawlerId;
+	private int fileNumber;
 	/**
 	 * The full path leading to articles (combination of host and relative path)
 	 */
@@ -61,12 +77,16 @@ public class WikiProcessor {
 	private Stemmer stemmer;
 	private Set<String> stopwords;
 
+	private HashMap<String, Integer> frequencies = new HashMap<String, Integer>();
 	/**
 	 * Initiates an instance of {@link WikiProcessor}.
 	 * 
 	 * @param hostname the name of host 
+	 * @param crawlerId 
 	 */
-	public WikiProcessor(String hostname) {
+	public WikiProcessor(String hostname, int crawlerId) {
+		this.crawlerId = crawlerId;
+		this.fileNumber = 0;
 		if (!hostname.endsWith("/")) {
 			hostname += "/";
 		}
@@ -106,18 +126,44 @@ public class WikiProcessor {
 	 * @param url the URL of the web page
 	 * @param content the content of the web page
 	 */
-	public void process(String url, String content) {
+	public boolean process(String url, String content) {
+		boolean success = false;
+
 		String title = extractTitle(url);
-		if (title != null && isContentPage(title)) {
+        //Pattern p = Pattern.compile("[^A-Za-z|\\-|\\S]");
+		if (title != null && isContentPage(title) && title.contains("c") && title.contains("l")) {
 			StringTokenizer tokenizer = new StringTokenizer(content,TOKEN_DELIMITER); // tokenize content
 			while (tokenizer.hasMoreTokens()) { // stem tokens
-				char[] token = tokenizer.nextToken().toCharArray();
-				this.stemmer.add(token,token.length);
-				this.stemmer.stem();
-				if (!stopwords.contains(this.stemmer.toString())) { // ignore stop words
-					System.out.println(String.valueOf(token) + " - " + this.stemmer.toString());	
+
+				// TODO: check for single characters like / - and so on
+				flushIfNecessary ();
+				//String[] words = p.split(tokenizer.nextToken().toLowerCase());
+				//for(String a: words){
+					//char[] token = a.toCharArray();
+					char[] token = tokenizer.nextToken().toLowerCase().toCharArray();
+					this.stemmer.add(token,token.length);
+					this.stemmer.stem();
+					String stem = this.stemmer.toString();
+					if (!stopwords.contains(stem)) { // ignore stop words
+						Integer freq = this.frequencies.get(stem);
+						if (freq != null)
+							this.frequencies.put(stem, ++freq);
+						else
+							this.frequencies.put(stem, 1);
+					//}
 				}
 			}
+			success = true;
+		}
+
+		return success;
+	}
+
+
+	private void flushIfNecessary() {
+		if(this.frequencies.size() > MAX_SIZE){
+			fileWriter();
+			this.frequencies.clear();
 		}
 	}
 
@@ -152,4 +198,34 @@ public class WikiProcessor {
 		System.out.println("final report");
 	}
 
+	/**
+	 * 
+	 */
+	public void fileWriter() 
+	{
+		try {
+			File output = new File(FILE_PATH +"crawler" + crawlerId + "_" + fileNumber + ".txt");
+			File parentDir = output.getParentFile();
+			if(! parentDir.exists()) 
+				parentDir.mkdirs();
+			BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
+			for(Map.Entry<String, Integer> pair : this.frequencies.entrySet()) {
+				w.write(pair.getKey()+"\t"+ pair.getValue());
+				w.newLine();
+			}
+			w.close();
+			this.fileNumber ++;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	public String sortFrequencies(HashMap<String, Integer> f)
+	{
+		StringBuilder builder = new StringBuilder();
+
+
+		return builder.toString();
+	}
 }

@@ -1,6 +1,7 @@
 package ir.assignment03;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import edu.uci.ics.crawler4j.crawler.Page;
@@ -16,24 +17,29 @@ public class WikiCrawler extends WebCrawler {
 
 	private static final String DEFAULT_HOST = "http://en.wikipedia.org/";
 
-	Pattern filters = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
+	private static Pattern filters = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
 			+ "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"
 			+ "|rm|smil|wmv|swf|wma|zip|rar|gz))$");
 	
+	private static AtomicInteger numberCrawledPages = new AtomicInteger();
 	
 	private String host;
 	private WikiProcessor proc;
+
 
 	public WikiCrawler() {
 		this(DEFAULT_HOST);
 	}
 	
-	public WikiCrawler(String hostname) {
+	public WikiCrawler(String hostname) {  
 		this.host = hostname; 
-		this.proc = new WikiProcessor(hostname);
+		this.proc = new WikiProcessor(hostname, this.getMyId());
 	}
 
 	public boolean shouldVisit(WebURL url) {
+		if (numberCrawledPages.get() >= 5){
+			System.exit(0);
+		}
 		String href = url.getURL().toLowerCase();
 		if (filters.matcher(href).matches()) {
 			return false;
@@ -49,7 +55,6 @@ public class WikiCrawler extends WebCrawler {
 		this.proc.report();
 	}
 
-	
 	public void visit(Page page) {
 		int docid = page.getWebURL().getDocid();
         String url = page.getWebURL().getURL();         
@@ -64,7 +69,9 @@ public class WikiCrawler extends WebCrawler {
 		System.out.println("Docid of parent page: " + parentDocid);
 		System.out.println("=============");
 		
-		this.proc.process(url, text);
+		if (this.proc.process(url, text))
+			numberCrawledPages.incrementAndGet();
 	}	
+	
 }
 
