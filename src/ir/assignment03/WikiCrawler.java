@@ -16,8 +16,8 @@ public class WikiCrawler extends WebCrawler {
 
 	private static final String DEFAULT_HOST = "http://en.wikipedia.org/";
 
-	private static final int LIMIT_FOR_CRAWLED_PAGES = 100;
-	private static final int REPORT_STEPS = 10;
+	private static final int LIMIT_FOR_CRAWLED_PAGES = 500;
+	private static final int REPORT_STEPS = 50;
 
 	private static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
 			+ "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"

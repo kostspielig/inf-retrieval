@@ -59,7 +59,7 @@ public class WikiProcessor {
 	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
 	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 	private static final String FILE_ENCODING = "UTF-8";
-	private static final int MAX_SIZE = 1000; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
+	private static final int MAX_SIZE = 10000; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
 	private static final String FILE_PATH = "temp" + File.separator;
 	private static final CharSequence[] REQUIRED_CHARS = {"c","l"};
 
@@ -76,7 +76,7 @@ public class WikiProcessor {
 	private Stemmer stemmer;
 	private Set<String> stopwords;
 
-	private HashMap<String, Integer> frequencies = new HashMap<String, Integer>();
+	private HashMap<String, Integer> frequencies = new HashMap<String, Integer>(MAX_SIZE,1);
 	/**
 	 * Initiates an instance of {@link WikiProcessor}.
 	 * 
