@@ -59,7 +59,7 @@ public class WikiProcessor {
 	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
 	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 	private static final String FILE_ENCODING = "UTF-8";
-	private static final int MAX_SIZE = 10000; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
+	private static final int MAX_SIZE = 10; // TODO: FABS DO NOT FORGET TO CHANGE THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsss
 	private static final String FILE_PATH = "temp" + File.separator;
 	private static final CharSequence[] REQUIRED_CHARS = {"c","l"};
 
@@ -179,7 +179,7 @@ public class WikiProcessor {
 	}
 
 	private void flushIfNecessary() {
-		if(this.frequencies.size() > MAX_SIZE){
+		if(this.frequencies.size() >= MAX_SIZE){
 			writeToFile();
 			this.frequencies.clear();
 		}
@@ -213,6 +213,7 @@ public class WikiProcessor {
 	 */
 	public void report() {
 		writeToFile();
+		this.frequencies.clear();
 	}
 
 	/**
