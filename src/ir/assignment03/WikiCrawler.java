@@ -1,6 +1,5 @@
 package ir.assignment03;
 
-import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -17,15 +16,16 @@ public class WikiCrawler extends WebCrawler {
 
 	private static final String DEFAULT_HOST = "http://en.wikipedia.org/";
 
-	private static Pattern filters = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
+	private static final int LIMIT_FOR_CRAWLED_PAGES = 50;
+	private static final int REPORT_STEPS = 10;
+
+	private static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
 			+ "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"
 			+ "|rm|smil|wmv|swf|wma|zip|rar|gz))$");
-	
-	private static AtomicInteger numberCrawledPages = new AtomicInteger();
+	private static AtomicInteger NUMBER_CRAWLED_PAGES = new AtomicInteger();
 	
 	private String host;
 	private WikiProcessor proc;
-
 
 	public WikiCrawler() {
 		this(DEFAULT_HOST);
@@ -37,11 +37,12 @@ public class WikiCrawler extends WebCrawler {
 	}
 
 	public boolean shouldVisit(WebURL url) {
-		if (numberCrawledPages.get() >= 5){
+		if (NUMBER_CRAWLED_PAGES.get() >= LIMIT_FOR_CRAWLED_PAGES){
+			this.proc.report();
 			System.exit(0);
 		}
 		String href = url.getURL().toLowerCase();
-		if (filters.matcher(href).matches()) {
+		if (FILTERS.matcher(href).matches()) {
 			return false;
 		}
 		if (href.startsWith(this.host)) {
@@ -52,25 +53,30 @@ public class WikiCrawler extends WebCrawler {
 	
 	// This function is called by controller before finishing the job.
 	public void onBeforeExit() {
-		this.proc.report();
+		// do nothing
 	}
 
 	public void visit(Page page) {
-		int docid = page.getWebURL().getDocid();
+//		int docid = page.getWebURL().getDocid();
         String url = page.getWebURL().getURL();         
         String text = page.getText();
-        ArrayList<WebURL> links = page.getURLs();
-		int parentDocid = page.getWebURL().getParentDocid();
+//        ArrayList<WebURL> links = page.getURLs();
+//		int parentDocid = page.getWebURL().getParentDocid();
 		
-		System.out.println("Docid: " + docid);
-		System.out.println("URL: " + url);
-		System.out.println("Text length: " + text.length());
-		System.out.println("Number of links: " + links.size());
-		System.out.println("Docid of parent page: " + parentDocid);
-		System.out.println("=============");
+//		System.out.println("Docid: " + docid);
+//		System.out.println("URL: " + url);
+//		System.out.println("Text length: " + text.length());
+//		System.out.println("Number of links: " + links.size());
+//		System.out.println("Docid of parent page: " + parentDocid);
+//		System.out.println("=============");
 		
-		if (this.proc.process(url, text))
-			numberCrawledPages.incrementAndGet();
+		if (this.proc.process(url, text)) {
+			NUMBER_CRAWLED_PAGES.incrementAndGet();
+		} 
+		if (NUMBER_CRAWLED_PAGES.get() % REPORT_STEPS == 0) {
+			System.out.println("Pages crawled so far: " + NUMBER_CRAWLED_PAGES);
+		}
+		
 	}	
 	
 }
