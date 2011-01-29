@@ -33,9 +33,12 @@ public class WikiCrawler extends WebCrawler {
 	
 	public WikiCrawler(String hostname) {  
 		this.host = hostname; 
-		this.proc = new WikiProcessor(hostname, this.getMyId());
 	}
 
+	public void onStart() {
+		this.proc = new WikiProcessor(this.host, this.getMyId());
+	}
+	
 	public boolean shouldVisit(WebURL url) {
 		if (NUMBER_CRAWLED_PAGES.get() >= LIMIT_FOR_CRAWLED_PAGES){
 			this.proc.report();
