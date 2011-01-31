@@ -53,8 +53,8 @@
 
 \kostspieligmaketitle
 
-\tableofcontents
-\pagebreak
+%\tableofcontents
+%\pagebreak
 % \startapendix
 
 \chapter{General Questions}
@@ -66,17 +66,21 @@
 			\item \texttt{Manolo Blahnik}
 			\item \texttt{Twin Towers}
 			\item \texttt{Best tennis player}
-			\item \texttt{}
+			\item \texttt{The Internet Hunt}
 		\end{enumerate}
-	Formulating the first query as the exact title of the corresponding Wikipedia article, we wanted to see how accurate the results were. For Google and Bing, we found the first result to be the main article about the shooting. However, as for the second result, only Bing listed an article relating to the Tucson Shooting. Bing not only listed the articles found, but also showed the content of the articles, allowing the user to navigate to a specific one.
+	Formulating the first query, we wanted to see how accurate the results were. For Google and Bing, we found the first result to be the main article about the shooting, as desired. However, as for the second result, only Bing listed an article relating to the Tucson Shooting. Bing not only listed the articles found, but also showed the content of the articles, allowing the user to navigate to a specific one.
 
 	The second query searched for a Spanish shoe designer. The main difference between Google and Bing is that Google showed pictures as a result, while Bing only showed articles. Bing, however, additionally showed the categories to which Manolo Blahnik belongs: {\it canarian people} and {\it shoe designer}.
 
 	The third query searched for the twin towers. We wanted to see if the search engines were going to give us any information about the attacks on September 11, 2001. Google gave the result {\it september 11 attacks} on the 9th position, while Bing did on the 4th. Bing also showed a small group of pictures at the beginning of the search.
 
 	Formulating a very imprecise number four query, both engines in first place link to the ranking pages for tennis players. However, Google also includes famous tennis player, including the one we were looking for: Rafael Nadal in the 7th position.
+	
+	The fifth query is the exact title of an early online scavenger hunt conducted from 1992 to 1995. Google listed the desired article on the first rank, followed by a general article on Internet scavenger hunts and, on rank three, an article about Rick Gates, the organizer of that game. Bing listed these articles, too, but changed the order of the first two; i.e., the article of interest was only ranked second.
+	
+	All queries were answered satisfactorily by Wikipedia's own search engine. For the first two queries, the respective first result was referring the user to the main article on that topic. The September 11 attacks were listed fourth when issuing the third query. The first result for the fourth query was an article on male tennis player rankings and included information on all number 1 players since 1877, including Rafael Nadal. For the fifth query, the article on the hunt was ranked first. We draw the conclusion that Wikipedia serves our purposes the best if we have specific information in mind which is likely to be included in an encyclopedia.
 
-	\item The articles we found regarding the {\it Tucson Mass Shooting} are:
+	\item The articles we found regarding the {\it Tucson Mass Shooting} are shown below. Each article is listed with the timestamp of the first edit concerning the shooting and the number of revisions created since.
 
 		\begin{description}
 		\item [2011 Tucson shooting] .\\ \\
@@ -109,7 +113,8 @@ This is the main article that talks about the Tucson shooting. The number of cha
 
 		\end{description}
 
-	Based on the results, we feel like the best way to decide how often to visit Wikipedia pages should be based on the number of revisions that the page has.  As for a page with a high number of revisions per hour, such as the first article, we could crawl the page after 10 or more new revisions have been made. 
+	Based on the results, we feel like the best way to decide how often to visit Wikipedia pages should be based on the rate in which revisions of the page are added. As for a page with a high number of revisions per hour, such as the first article, we could crawl the page after 10 or 
+more new revisions have been made. As this rate changes over time, the crawler needs to update its statistics continuously so that predictions of when the page is going to be edited next are as accurate as possible.
  \end {enumerate}
 
 
