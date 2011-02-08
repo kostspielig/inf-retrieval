@@ -8,6 +8,7 @@ import java.util.Vector;
 
 public class IndexConstructor {
 	
+	private static final int MAX_CAPACITY = 10000;
 	private DocumentIterator docIterator;
 	private Parser parser;
 	
@@ -17,6 +18,7 @@ public class IndexConstructor {
 	public IndexConstructor(String root) {
 		this.docIterator = new DocumentIterator(root);
 		this.parser = new Parser();
+		this.index = new HashMap<String, List<Posting>>(MAX_CAPACITY+1,1.0f);
 	}
 	
 	public void construct() {
@@ -37,7 +39,11 @@ public class IndexConstructor {
 	}
 
 	private void indexToken(String token, int pos, String docName) {
-		// TODO Stem & stopwords
+		// TODO: toLowercase
+		// TODO Stem
+		// TODO: stopwords
+		// TODO: use docIDs instead of name (opt-in)
+		// TODO: check capacity, write out to disk if full
 		List<Posting> postings = this.index.get(token);
 		if (postings == null){
 			Posting p = new Posting(docName, pos);
@@ -50,14 +56,16 @@ public class IndexConstructor {
 				int comparison = p.getName().compareTo(docName);
 				if (comparison == 0) {
 					p.addPostion(pos);
-					break;
+					return;
 				} else if (comparison > 0) {
 					Posting newP = new Posting(docName, pos);
 					postings.add(i, newP);
-					break;
+					return;
 				}
 				i++;
 			}
+			Posting newP = new Posting(docName, pos);
+			postings.add(i, newP);
 		}
 	}
 
@@ -72,6 +80,7 @@ public class IndexConstructor {
 		
 		IndexConstructor constructor = new IndexConstructor(args[0]);
 		constructor.construct();
+		
 	}
 
 }

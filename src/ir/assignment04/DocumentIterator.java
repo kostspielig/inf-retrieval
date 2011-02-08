@@ -29,8 +29,9 @@ public class DocumentIterator implements Iterator<File> {
 		if(!this.root.isDirectory()) {
 			throw new IllegalArgumentException("The path provided is not a directory.");
 		}
+		// TODO: implement lazy initialization
 		initialize();
-		this.next = next();
+		next();
 	}
 	
 	private void initialize() {
