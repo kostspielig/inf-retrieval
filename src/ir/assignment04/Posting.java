@@ -3,6 +3,19 @@ package ir.assignment04;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * CS 121 Information Retrieval <br />
+ * Assignment 04 <br />
+ * Part 3 <br /><br />
+ * 
+ * Represents a posting in the inverted index.
+ * 
+ * @see IndexConstructor
+ * 
+ * @author María Carrasco
+ * @author Fabian Lindenberg
+ * @author Lea Voget
+ */
 public class Posting implements Comparable<Posting> {
 
 	private String name;

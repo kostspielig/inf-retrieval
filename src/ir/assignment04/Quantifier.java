@@ -8,9 +8,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * CS 121 Information Retrieval
- * Assignment 04
- * Part 2
+ * CS 121 Information Retrieval <br />
+ * Assignment 04 <br />
+ * Part 2 <br /><br />
  * 
  * @author María Carrasco
  * @author Fabian Lindenberg
