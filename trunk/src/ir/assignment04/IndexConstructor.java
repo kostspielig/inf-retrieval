@@ -66,7 +66,6 @@ public class IndexConstructor {
 		this.index = new HashMap<String, List<Posting>>(MAX_CAPACITY+1,1.0f);
 		this.stemmer = new Stemmer();
 		this.stopwords = loadStopwords();
-		// TODO: initialize stop words (compare Assignment 03)
 	}
 	
 	/**
@@ -102,24 +101,17 @@ public class IndexConstructor {
 	 * @param pos the position of the token in the document
 	 * @param docName the name of the document the token occurs in
 	 */
-	private void indexToken(String rawToken, int pos, String docName) {
-		// TODO Stem
-		// TODO: stopwords (compare assignment 03)
+	private void indexToken(String token, int pos, String docName) {
 		// TODO: use docIDs instead of name (if compression flag is set)
-		String longToken = rawToken.toLowerCase();
-		if (isValidToken(longToken)) {
-			char[] tokenChrAr = longToken.toCharArray();
-			this.stemmer.add(tokenChrAr,tokenChrAr.length);
-			this.stemmer.stem();
-			String token = this.stemmer.toString();
-			List<Posting> postings = this.index.get(token);
-
+		String stemmed = stem(token);
+		if (isValidToken(stemmed)) {
+			List<Posting> postings = this.index.get(stemmed);
 			if (postings == null){ // token not yet included in the index 
 				flushIndexToDiskIfNecessary();
 				Posting p = new Posting(docName, pos);
 				postings = new ArrayList<Posting>();
 				postings.add(p);
-				this.index.put(token, postings);
+				this.index.put(stemmed, postings);
 			} else { // token is already included, update posting or create new posting
 				int i=0;
 				for (Posting p : postings) {
@@ -141,6 +133,14 @@ public class IndexConstructor {
 	}
 	
 	
+	private String stem(String word) {
+		word = word.toLowerCase();
+		char[] wordChrAr = word.toCharArray();
+		this.stemmer.add(wordChrAr,wordChrAr.length);
+		this.stemmer.stem();
+		return this.stemmer.toString();
+	}
+
 	/**
 	 * Loads and stems user-defined stopwords.
 	 * 
@@ -154,10 +154,7 @@ public class IndexConstructor {
 							new FileInputStream(DEFAULT_STOPWORDS_FILE), FILE_ENCODING));
 			String line;
 			while ((line = br.readLine()) != null) {
-				char[] word = line.toCharArray();
-				this.stemmer.add(word, word.length);
-				this.stemmer.stem();
-				stopwords.add(stemmer.toString());
+				stopwords.add(stem(line));
 			}
 			return stopwords;
 		} catch (Exception e) { // problems reading file, return empty set instead
