@@ -107,9 +107,9 @@ public class DocumentIterator implements Iterator<File> {
 					break;
 				}
 			}
-		}
-		if (!success) {
-			this.subfolderIterator = null;
+			if (!success) {
+				this.subfolderIterator = null;
+			}
 		}
 	}
 
