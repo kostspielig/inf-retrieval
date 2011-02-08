@@ -133,9 +133,14 @@ public class IndexConstructor {
 	}
 	
 	
+	/**
+	 * Converts passed word to lowercase representation and stems it.
+	 * 
+	 * @param word
+	 * @return the stemmed word
+	 */
 	private String stem(String word) {
-		word = word.toLowerCase();
-		char[] wordChrAr = word.toCharArray();
+		char[] wordChrAr = word.toLowerCase().toCharArray();
 		this.stemmer.add(wordChrAr,wordChrAr.length);
 		this.stemmer.stem();
 		return this.stemmer.toString();
