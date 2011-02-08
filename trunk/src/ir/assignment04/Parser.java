@@ -1,14 +1,18 @@
 package ir.assignment04;
 
-import java.io.File;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
+ * CS 121 Information Retrieval <br />
+ * Assignment 04 <br />
+ * Part 3 <br /><br />
  * 
- * @author Fabian Linderberg
- * @author Maria Carrasco
- *
+ * Tokenizes a given text.
+ * 
+ * @author María Carrasco
+ * @author Fabian Lindenberg
+ * @author Lea Voget
  */
 public class Parser {
 

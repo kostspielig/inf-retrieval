@@ -9,9 +9,15 @@ import java.util.Queue;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
+ * CS 121 Information Retrieval <br />
+ * Assignment 04 <br />
+ * Part 3 <br /><br />
  * 
- * @author Fabian Linderberg, Maria Carrasco
- *
+ * Iterates recursively over the files in a root directory and its subfolders. 
+ * 
+ * @author María Carrasco
+ * @author Fabian Lindenberg
+ * @author Lea Voget
  */
 public class DocumentIterator implements Iterator<File> {
 

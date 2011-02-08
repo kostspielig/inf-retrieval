@@ -7,6 +7,17 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * CS 121 Information Retrieval <br />
+ * Assignment 04 <br />
+ * Part 3 <br /><br />
+ * 
+ * Represents an e-mail.
+ * 
+ * @author María Carrasco
+ * @author Fabian Lindenberg
+ * @author Lea Voget
+ */
 public class Email {
 
 	private static final String FILE_ENCODING = "UTF-8";
