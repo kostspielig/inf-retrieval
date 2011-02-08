@@ -1,9 +1,14 @@
 package ir.assignment04;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 /**
@@ -37,6 +42,18 @@ public class IndexConstructor {
 	 */
 	private HashMap<String, List<Posting>> index;
 	
+	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
+	private static final String FILE_ENCODING = "UTF-8";
+	
+	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
+
+	
+	/**
+	 * The Porter Stemmer used to stem tokens
+	 */
+	private Stemmer stemmer;
+	private Set<String> stopwords;
+
 	
 	/**
 	 * Initializes a new object that is responsible for constructing the inverted index. 
@@ -47,6 +64,8 @@ public class IndexConstructor {
 		this.docIterator = new DocumentIterator(root);
 		this.parser = new Parser();
 		this.index = new HashMap<String, List<Posting>>(MAX_CAPACITY+1,1.0f);
+		this.stemmer = new Stemmer();
+		this.stopwords = loadStopwords();
 		// TODO: initialize stop words (compare Assignment 03)
 	}
 	
@@ -83,36 +102,81 @@ public class IndexConstructor {
 	 * @param pos the position of the token in the document
 	 * @param docName the name of the document the token occurs in
 	 */
-	private void indexToken(String token, int pos, String docName) {
-		// TODO: toLowercase
+	private void indexToken(String rawToken, int pos, String docName) {
 		// TODO Stem
 		// TODO: stopwords (compare assignment 03)
 		// TODO: use docIDs instead of name (if compression flag is set)
-		List<Posting> postings = this.index.get(token);
-		if (postings == null){ // token not yet included in the index 
-			flushIndexToDiskIfNecessary();
-			Posting p = new Posting(docName, pos);
-			postings = new ArrayList<Posting>();
-			postings.add(p);
-			this.index.put(token, postings);
-		} else { // token is already included, update posting or create new posting
-			int i=0;
-			for (Posting p : postings) {
-				int comparison = p.getName().compareTo(docName);
-				if (comparison == 0) { // posting for the document exists already --> update
-					p.addPostion(pos);
-					return;
-				} else if (comparison > 0) { // posting for the doc does not exist --> insert inbetween
-					Posting newP = new Posting(docName, pos);
-					postings.add(i, newP);
-					return;
+		String longToken = rawToken.toLowerCase();
+		if (isValidToken(longToken)) {
+			char[] tokenChrAr = longToken.toCharArray();
+			this.stemmer.add(tokenChrAr,tokenChrAr.length);
+			this.stemmer.stem();
+			String token = this.stemmer.toString();
+			List<Posting> postings = this.index.get(token);
+
+			if (postings == null){ // token not yet included in the index 
+				flushIndexToDiskIfNecessary();
+				Posting p = new Posting(docName, pos);
+				postings = new ArrayList<Posting>();
+				postings.add(p);
+				this.index.put(token, postings);
+			} else { // token is already included, update posting or create new posting
+				int i=0;
+				for (Posting p : postings) {
+					int comparison = p.getName().compareTo(docName);
+					if (comparison == 0) { // posting for the document exists already --> update
+						p.addPostion(pos);
+						return;
+					} else if (comparison > 0) { // posting for the doc does not exist --> insert inbetween
+						Posting newP = new Posting(docName, pos);
+						postings.add(i, newP);
+						return;
+					}
+					i++;
 				}
-				i++;
+				Posting newP = new Posting(docName, pos); // posting for the doc does not exist & all other docNames are smaller --> insert at the end
+				postings.add(i, newP);
 			}
-			Posting newP = new Posting(docName, pos); // posting for the doc does not exist & all other docNames are smaller --> insert at the end
-			postings.add(i, newP);
 		}
 	}
+	
+	
+	/**
+	 * Loads and stems user-defined stopwords.
+	 * 
+	 * @return stemmed stopwords
+	 */
+	private Set<String> loadStopwords() {
+		try {
+			Set<String> stopwords = new TreeSet<String>();
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+							new FileInputStream(DEFAULT_STOPWORDS_FILE), FILE_ENCODING));
+			String line;
+			while ((line = br.readLine()) != null) {
+				char[] word = line.toCharArray();
+				this.stemmer.add(word, word.length);
+				this.stemmer.stem();
+				stopwords.add(stemmer.toString());
+			}
+			return stopwords;
+		} catch (Exception e) { // problems reading file, return empty set instead
+			e.printStackTrace();
+			return new TreeSet<String>();
+		}		
+	}
+	
+	/**
+	 * Checks whether the token is longer than one character and consists not only of special characters.
+	 * Makes sure the token isn't a stopword
+	 * 
+	 * @param token
+	 * @return true if it is longer than one char and does NOT consist only of special characters
+	 */
+	private boolean isValidToken(String token) {
+		return token.length() > 1 && !stopwords.contains(token) && !token.matches(SPECIAL_CHARS);
+	}
+	
 
 	/**
 	 * Writes the intermediate index to disk if capacity is reached.
