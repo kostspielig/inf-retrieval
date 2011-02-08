@@ -21,6 +21,11 @@ public class Email {
 		separateFile(f);
 	}
 
+	/**
+	 * Separates the file content into header, subject line, and body.
+	 * 
+	 * @param f
+	 */
 	private void separateFile(File f) {
 		try {
 			BufferedReader br = new BufferedReader(
@@ -65,6 +70,16 @@ public class Email {
 		}
 		return result;
 	}
+
+	public String getSubject() {
+		return this.subject;
+	}
+	
+	public String getBody() {
+		return this.body;
+	}
+	
+
 	
 	public static void main(String[] args) {
 		File f = new File("C:\\Users\\kostspielig\\Documents\\InfoRetrieval\\Ass4\\maildir\\allen-p\\inbox\\1");
@@ -74,4 +89,6 @@ public class Email {
 		System.out.println("Subject: " + e.subject);
 		System.out.println("Body: " + e.body);
 	}
+	
+	
 }
