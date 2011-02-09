@@ -112,7 +112,7 @@ public class IndexConstructor {
 			this.docNr++;
 		}
 		writeToDisk();
-		mergeIntermediateResults();
+//		mergeIntermediateResults();
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class IndexConstructor {
 		}
 		try {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
-			
+			// TODO: do not compress
 			for (Map.Entry<String, List<Posting>> entry : sorted.entrySet()) {
 				bw.write(entry.getKey() + "\t" + Posting.encodePostings(entry.getValue(), this.enableCompression));
 				bw.newLine();
@@ -289,7 +289,7 @@ public class IndexConstructor {
 					for (int idx : idxOfSmallestTerms) {
 						String line = readers.get(idx).readLine();
 						if (line == null){
-							currentFileIndices.remove(currentFileIndices.indexOf(idx)); // TODO: BUG: index idx might no longer be valid, as elements could have been removed in the previous iteration
+							currentFileIndices.remove(currentFileIndices.indexOf(idx));
 						}else
 							//TODO check if "2" is correct
 							currentRecords[idx] = line.split(SEPARATOR,2);
@@ -320,8 +320,9 @@ public class IndexConstructor {
 							postingsToMerge.add(currentRecords[idxOfFile][1]);
 						}
 					}
-
-					bw.write(smallestTerm + SEPARATOR + mergePostings(postingsToMerge));
+					
+					List<Posting> merged = Posting.decodeAndMergePostings(postingsToMerge);
+					bw.write(smallestTerm + SEPARATOR + Posting.encodePostings(merged, enableCompression));
 
 					bw.newLine();
 				}
@@ -337,10 +338,7 @@ public class IndexConstructor {
 			e.printStackTrace();		
 		}
 	}
-	private String mergePostings(List<String> postingsToMerge) {
-		// TODO implement this :-)
-		return postingsToMerge.toString();
-	}
+	
 
 	/**
 	 * @param args
