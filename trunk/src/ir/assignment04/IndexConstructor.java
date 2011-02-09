@@ -1,13 +1,21 @@
 package ir.assignment04;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -52,20 +60,40 @@ public class IndexConstructor {
 	 * The Porter Stemmer used to stem tokens
 	 */
 	private Stemmer stemmer;
+	/**
+	 * The user-defined list of stopwords after stemming
+	 */
 	private Set<String> stopwords;
-
+	/**
+	 * The output path of the final result.
+	 */
+	private String out;
+	/**
+	 * The directory in which intermediate results are stored.
+	 */
+	private String intermediateOut;
+	/**
+	 * true if output files shall be compressed
+	 */
+	private boolean enableCompression;
+	private int fileNr = 0;
 	
 	/**
 	 * Initializes a new object that is responsible for constructing the inverted index. 
 	 * 
 	 * @param root the path to the root directory
+	 * @param enableCompression 
+	 * @param outDir 
 	 */
-	public IndexConstructor(String root) {
+	public IndexConstructor(String root, String outDir, boolean enableCompression) {
 		this.docIterator = new DocumentIterator(root);
 		this.parser = new Parser();
 		this.index = new HashMap<String, List<Posting>>(MAX_CAPACITY+1,1.0f);
 		this.stemmer = new Stemmer();
 		this.stopwords = loadStopwords();
+		this.out = outDir;
+		this.intermediateOut = this.out + File.separator + "intermediate" + File.separator;
+		this.enableCompression = enableCompression;
 	}
 	
 	/**
@@ -80,7 +108,29 @@ public class IndexConstructor {
 				indexToken(tokens.get(i), i, extractDocName(nextDoc));
 			}
 		}
-		
+		writeToDisk();		
+	}
+
+	/**
+	 * Loads and stems user-defined stopwords.
+	 * 
+	 * @return stemmed stopwords
+	 */
+	private Set<String> loadStopwords() {
+		try {
+			Set<String> stopwords = new TreeSet<String>();
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+							new FileInputStream(DEFAULT_STOPWORDS_FILE), FILE_ENCODING));
+			String line;
+			while ((line = br.readLine()) != null) {
+				stopwords.add(stem(line));
+			}
+			return stopwords;
+		} catch (Exception e) { // problems reading file, return empty set instead
+			e.printStackTrace();
+			return new TreeSet<String>();
+		}		
 	}
 
 	/**
@@ -147,28 +197,6 @@ public class IndexConstructor {
 	}
 
 	/**
-	 * Loads and stems user-defined stopwords.
-	 * 
-	 * @return stemmed stopwords
-	 */
-	private Set<String> loadStopwords() {
-		try {
-			Set<String> stopwords = new TreeSet<String>();
-			BufferedReader br = new BufferedReader(
-					new InputStreamReader(
-							new FileInputStream(DEFAULT_STOPWORDS_FILE), FILE_ENCODING));
-			String line;
-			while ((line = br.readLine()) != null) {
-				stopwords.add(stem(line));
-			}
-			return stopwords;
-		} catch (Exception e) { // problems reading file, return empty set instead
-			e.printStackTrace();
-			return new TreeSet<String>();
-		}		
-	}
-	
-	/**
 	 * Checks whether the token is longer than one character and consists not only of special characters.
 	 * Makes sure the token isn't a stopword
 	 * 
@@ -185,25 +213,58 @@ public class IndexConstructor {
 	 */
 	private void flushIndexToDiskIfNecessary() {
 		if (this.index.size() >= MAX_CAPACITY) {
-			// TODO: sort hash maps based on keys
-			// TODO: write out sorted hash map to disk (in the output directory passed to the constructor)
-			// TODO: make format dependent on whether compression flag is set or not
-			// this.index.clear(); // TODO: empty hashmap
+			writeToDisk();
 		}
+	}
+
+	/**
+	 * Writes the intermediate index to disk.
+	 */
+	private void writeToDisk() {
+		// sort hash maps based on keys
+		SortedMap<String, List<Posting>> sorted = new TreeMap<String, List<Posting>>(this.index);
+		
+		File output = new File(this.intermediateOut + "intermediate_" + this.fileNr++);
+		File parentDir = output.getParentFile();
+		if(! parentDir.exists()) {
+			parentDir.mkdirs();
+		}
+		try {
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
+			
+			for (Map.Entry<String, List<Posting>> entry : sorted.entrySet()) {
+				bw.write(entry.getKey() + "\t" + Posting.encodePostings(entry.getValue(), this.enableCompression));
+				bw.newLine();
+			}
+			
+			bw.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		this.index.clear();
 	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO: provide output directory as an argument
-		// TODO: provide flag for compression as an argument (e.g., 0 if compression shall be disabled, != 0 otherwise)
-		if (args.length < 1) {
-			System.out.println("Please provide the path to the root folder.");
+		if (args.length < 3) {
+			System.out.println("Please provide the path to the root folder, the path to the output directory, and a flag indicating whether compression shall be enabled.");
 			System.exit(1);
 		}
 		
-		IndexConstructor constructor = new IndexConstructor(args[0]); // TODO: pass output dir and pass boolean flag for compression
+		String rootDir = args[0];
+		String outDir = args[1];
+		boolean enableCompression;
+		try {
+			enableCompression = Integer.valueOf(args[2]) == 1;
+		} catch (NumberFormatException e) {
+			enableCompression = false;
+		}
+		
+		IndexConstructor constructor = new IndexConstructor(rootDir, outDir, enableCompression);
 		constructor.construct();
 		
 	}

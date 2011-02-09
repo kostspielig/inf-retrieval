@@ -18,6 +18,19 @@ import java.util.List;
  */
 public class Posting implements Comparable<Posting> {
 
+	private static final String DELIMITER_POSITIONS = ",";
+	private static final String DELIMITER_POSTING = "\t";
+	private static final String DELIMITER_POSTINGPART = ":";
+
+	public int getFrequency() {
+		return frequency;
+	}
+
+	public List<Integer> getPositions() {
+		return positions;
+	}
+
+	// TODO: introduce DocID
 	private String name;
 	private int frequency;
 	private List<Integer> positions;
@@ -50,5 +63,45 @@ public class Posting implements Comparable<Posting> {
 		return this.name.compareTo(o.getName());
 	}
 
+	
+	// CLASS methods
+	
+	public static String encodePostings(List<Posting> postings, boolean enableCompression) {
+		String result;
+		
+		if (enableCompression) {
+			result = compressListOfPostings(postings);
+		} else {
+			result = textifyListOfPostings(postings);
+		}
+		
+		return result;
+	}
+
+	private static String textifyListOfPostings(List<Posting> postings) {
+		StringBuilder strBuilder = new StringBuilder();
+		
+		for (Posting p : postings) {
+			strBuilder.append(p.getName());
+			strBuilder.append(DELIMITER_POSTINGPART);
+			strBuilder.append(p.getFrequency());
+			strBuilder.append(DELIMITER_POSTINGPART);
+			int i = 0;
+			for (Integer pos : p.getPositions()) {
+				strBuilder.append(pos);
+				if (i < p.getPositions().size()-1) {
+					strBuilder.append(DELIMITER_POSITIONS);
+				}
+			}
+			strBuilder.append(DELIMITER_POSTING);
+		}
+		
+		return strBuilder.toString();
+	}
+
+	private static String compressListOfPostings(List<Posting> postings) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
