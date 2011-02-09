@@ -4,11 +4,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +75,10 @@ public class IndexConstructor {
 	 */
 	private boolean enableCompression;
 	private int fileNr = 0;
+	/**
+	 * incrementing number of documents
+	 */
+	private int docNr = 0;
 	
 	/**
 	 * Initializes a new object that is responsible for constructing the inverted index. 
@@ -105,10 +107,12 @@ public class IndexConstructor {
 			Email e = new Email(nextDoc);
 			Vector<String> tokens = this.parser.parse(e.getBody());
 			for(int i = 0; i < tokens.size(); i++) {
-				indexToken(tokens.get(i), i, extractDocName(nextDoc));
+				indexToken(this.docNr, extractDocName(nextDoc), tokens.get(i), i);
 			}
+			this.docNr++;
 		}
-		writeToDisk();		
+		writeToDisk();
+		mergeIntermediateResults();
 	}
 
 	/**
@@ -147,36 +151,42 @@ public class IndexConstructor {
 	/**
 	 * Stores the token in the index.
 	 * 
+	 * @param docID the ID of the document the token occurs in
+	 * @param docName the name of the document the token occurs in
 	 * @param token the token to store
 	 * @param pos the position of the token in the document
-	 * @param docName the name of the document the token occurs in
 	 */
-	private void indexToken(String token, int pos, String docName) {
+	private void indexToken(int docID, String docName, String token, int pos) {
 		// TODO: use docIDs instead of name (if compression flag is set)
 		String stemmed = stem(token);
 		if (isValidToken(stemmed)) {
 			List<Posting> postings = this.index.get(stemmed);
 			if (postings == null){ // token not yet included in the index 
 				flushIndexToDiskIfNecessary();
-				Posting p = new Posting(docName, pos);
+				Posting p = new Posting(docID, docName, pos);
 				postings = new ArrayList<Posting>();
 				postings.add(p);
 				this.index.put(stemmed, postings);
 			} else { // token is already included, update posting or create new posting
 				int i=0;
 				for (Posting p : postings) {
-					int comparison = p.getName().compareTo(docName);
+					int comparison;
+					if (this.enableCompression) {
+						comparison = p.getID().compareTo(docID);
+					} else {
+						comparison = p.getName().compareTo(docName);
+					}
 					if (comparison == 0) { // posting for the document exists already --> update
 						p.addPostion(pos);
 						return;
 					} else if (comparison > 0) { // posting for the doc does not exist --> insert inbetween
-						Posting newP = new Posting(docName, pos);
+						Posting newP = new Posting(docID, docName, pos);
 						postings.add(i, newP);
 						return;
 					}
 					i++;
 				}
-				Posting newP = new Posting(docName, pos); // posting for the doc does not exist & all other docNames are smaller --> insert at the end
+				Posting newP = new Posting(docID, docName, pos); // posting for the doc does not exist & all other docNames are smaller --> insert at the end
 				postings.add(i, newP);
 			}
 		}
@@ -244,6 +254,13 @@ public class IndexConstructor {
 		}
 
 		this.index.clear();
+	}
+
+	/**
+	 * Reads the intermediate results from disk and merges them into a new output file.
+	 */
+	private void mergeIntermediateResults() {
+		// TODO implement merging		
 	}
 
 	/**

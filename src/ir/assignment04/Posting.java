@@ -22,24 +22,19 @@ public class Posting implements Comparable<Posting> {
 	private static final String DELIMITER_POSTING = "\t";
 	private static final String DELIMITER_POSTINGPART = ":";
 
-	public int getFrequency() {
-		return frequency;
-	}
 
-	public List<Integer> getPositions() {
-		return positions;
-	}
 
-	// TODO: introduce DocID
+	private Integer id;
 	private String name;
 	private int frequency;
 	private List<Integer> positions;
 	
-	public Posting(String name, int pos){
+	public Posting(int docID, String name, int pos){
 		this.name = name;
 		this.positions = new LinkedList<Integer>();
 		this.positions.add(pos);
 		this.frequency = 1;
+		this.id = docID;
 	}
 	
 	private void incrementFrequency(){
@@ -55,6 +50,18 @@ public class Posting implements Comparable<Posting> {
 		return name;
 	}
 
+	public int getFrequency() {
+		return frequency;
+	}
+
+	public List<Integer> getPositions() {
+		return positions;
+	}
+
+	public Integer getID() {
+		return id;
+	}
+	
 	@Override
 	public int compareTo(Posting o) {
 		if (this == o) {
@@ -82,17 +89,7 @@ public class Posting implements Comparable<Posting> {
 		StringBuilder strBuilder = new StringBuilder();
 		
 		for (Posting p : postings) {
-			strBuilder.append(p.getName());
-			strBuilder.append(DELIMITER_POSTINGPART);
-			strBuilder.append(p.getFrequency());
-			strBuilder.append(DELIMITER_POSTINGPART);
-			int i = 0;
-			for (Integer pos : p.getPositions()) {
-				strBuilder.append(pos);
-				if (i < p.getPositions().size()-1) {
-					strBuilder.append(DELIMITER_POSITIONS);
-				}
-			}
+			strBuilder.append(encodePosting(p.getName(), p.getFrequency(), p.getPositions()));
 			strBuilder.append(DELIMITER_POSTING);
 		}
 		
@@ -100,8 +97,60 @@ public class Posting implements Comparable<Posting> {
 	}
 
 	private static String compressListOfPostings(List<Posting> postings) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder strBuilder = new StringBuilder();
+		Integer oldID = null;
+		int compressedID;
+		
+		for (Posting p : postings) {
+			if (oldID != null){
+				compressedID = p.getID() - oldID;
+			} else {
+				compressedID = p.getID();
+			}
+			oldID = p.getID();
+			strBuilder.append(encodePosting(String.valueOf(compressedID), p.getFrequency(), deltaEncoding(p.getPositions())));
+			strBuilder.append(DELIMITER_POSTING);
+		}
+		
+		return strBuilder.toString();
+	}
+
+	private static List<Integer> deltaEncoding(List<Integer> positions) {
+		List<Integer> result = new LinkedList<Integer>();
+		Integer oldPosition = null;
+		int compressedPosition;
+		
+		for (Integer pos : positions) {
+			if (oldPosition != null){
+				compressedPosition = pos - oldPosition;
+			} else {
+				compressedPosition = pos;
+			}
+			result.add(compressedPosition);
+			oldPosition = pos;
+		}
+		
+		return result;
+	}
+
+	private static String encodePosting(String identifier, int frequency, List<Integer> positions){
+		StringBuilder strBuilder = new StringBuilder();
+		
+		strBuilder.append(identifier);
+		strBuilder.append(DELIMITER_POSTINGPART);
+		strBuilder.append(frequency);
+		strBuilder.append(DELIMITER_POSTINGPART);
+		
+		int i = 0;
+		for (Integer pos : positions) {
+			strBuilder.append(pos);
+			if (i < positions.size()-1) {
+				strBuilder.append(DELIMITER_POSITIONS);
+			}
+			i++;
+		}
+		
+		return strBuilder.toString();
 	}
 	
 }
