@@ -34,7 +34,7 @@ public class IndexConstructor {
 	/**
 	 * The maximum capacity of the index in memory.
 	 */
-	private static final int MAX_CAPACITY = 10000;
+	private static final int MAX_CAPACITY = 2;
 	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 	private static final String FILE_ENCODING = "UTF-8";
 	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
@@ -93,8 +93,8 @@ public class IndexConstructor {
 		this.index = new HashMap<String, List<Posting>>(MAX_CAPACITY+1,1.0f);
 		this.stemmer = new Stemmer();
 		this.stopwords = loadStopwords();
-		this.out = outDir;
-		this.intermediateOut = this.out + File.separator + "intermediate" + File.separator;
+		this.out = outDir + File.separator + "index_" + (enableCompression ? "compressed" : "plain") + ".txt";
+		this.intermediateOut = outDir + File.separator + "intermediate" + File.separator;
 		this.enableCompression = enableCompression;
 	}
 	
@@ -112,7 +112,7 @@ public class IndexConstructor {
 			this.docNr++;
 		}
 		writeToDisk();
-//		mergeIntermediateResults();
+		mergeIntermediateResults();
 	}
 
 	/**
@@ -260,9 +260,9 @@ public class IndexConstructor {
 	 */
 	private void mergeIntermediateResults() {
 		try {
-			// read in intermediate files
 			File dir = new File(this.intermediateOut);
 			if (dir.isDirectory()) {
+				// initialize readers for all intermediate results
 				File[] files = dir.listFiles();
 				ArrayList<BufferedReader> readers = new ArrayList<BufferedReader>(files.length);
 				for (File file : files) {
@@ -276,48 +276,54 @@ public class IndexConstructor {
 				//initialize data structure holding all files with mappings from name to positions
 				String[][] currentRecords = new String[files.length][2];
 				
-				String smallestStem = null;
-				//TODO Why do we need count of Smallest Stem?
-				int countOfSmallestStem = 0;
+				String smallestTerm = null;
+				List<String> postingsToMerge = new LinkedList<String>();
 				List<Integer> idxOfSmallestTerms = new LinkedList<Integer>();
-				List<Integer> firstTermsofFiles = new ArrayList<Integer>();
-
+				List<Integer> currentFileIndices = new ArrayList<Integer>();
 
 				for (int i = 0; i < files.length; i++){
 					idxOfSmallestTerms.add(i);
-					firstTermsofFiles.add(i);
+					currentFileIndices.add(i);
 				}
-				while (!firstTermsofFiles.isEmpty()) {
+				while (!currentFileIndices.isEmpty()) {
 					for (int idx : idxOfSmallestTerms) {
 						String line = readers.get(idx).readLine();
 						if (line == null){
-							firstTermsofFiles.remove(firstTermsofFiles.indexOf(idx)); // TODO: BUG: index idx might no longer be valid, as elements could have been removed in the previous iteration
+							currentFileIndices.remove(currentFileIndices.indexOf(idx)); // TODO: BUG: index idx might no longer be valid, as elements could have been removed in the previous iteration
 						}else
-							//TODO only split at first tab, keep the rest as is
-							currentRecords[idx] = line.split(SEPARATOR);
+							//TODO check if "2" is correct
+							currentRecords[idx] = line.split(SEPARATOR,2);
 					}
-					if (firstTermsofFiles.isEmpty())
+					
+					// break if all files have been processed
+					if (currentFileIndices.isEmpty())
 						break;
+					
 					idxOfSmallestTerms.clear();
-					smallestStem = currentRecords[firstTermsofFiles.get(0)][0];
+					smallestTerm = currentRecords[currentFileIndices.get(0)][0];
 
-					for (Integer arr : firstTermsofFiles){
-						int cmp = smallestStem.compareTo(currentRecords[arr][0]); 
-						if ( cmp > 0 ){ 
-							smallestStem = currentRecords[arr][0];
+					for (Integer idxOfFile : currentFileIndices){
+						int cmp = smallestTerm.compareTo(currentRecords[idxOfFile][0]); 
+						if ( cmp > 0 ){ // found smaller term
+							// choose new smallest term
+							smallestTerm = currentRecords[idxOfFile][0];
+							// add idx of smallest term
 							idxOfSmallestTerms.clear();
-							idxOfSmallestTerms.add(arr);
-							countOfSmallestStem = Integer.valueOf(currentRecords[arr][1]);
-						} else if(cmp == 0){
-							idxOfSmallestTerms.add(arr);
-							countOfSmallestStem += Integer.valueOf(currentRecords[arr][1]);
+							idxOfSmallestTerms.add(idxOfFile);
+							// add posting list of smallest term
+							postingsToMerge.clear();
+							postingsToMerge.add(currentRecords[idxOfFile][1]);
+						} else if(cmp == 0){ // found equally small term
+							// add idx of equally small term
+							idxOfSmallestTerms.add(idxOfFile);
+							// add posting list of equally small term
+							postingsToMerge.add(currentRecords[idxOfFile][1]);
 						}
 					}
 
-					bw.write(smallestStem + SEPARATOR + countOfSmallestStem);
+					bw.write(smallestTerm + SEPARATOR + mergePostings(postingsToMerge));
 
 					bw.newLine();
-					countOfSmallestStem = 0;
 				}
 
 				for(BufferedReader br: readers){
@@ -331,6 +337,11 @@ public class IndexConstructor {
 			e.printStackTrace();		
 		}
 	}
+	private String mergePostings(List<String> postingsToMerge) {
+		// TODO implement this :-)
+		return postingsToMerge.toString();
+	}
+
 	/**
 	 * @param args
 	 */
