@@ -1,7 +1,10 @@
 package ir.assignment04;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * CS 121 Information Retrieval <br />
@@ -151,6 +154,29 @@ public class Posting implements Comparable<Posting> {
 		}
 		
 		return strBuilder.toString();
+	}
+
+	public static List<Posting> decodeAndMergePostings(List<String> encodedPostings) {
+		List<Posting> result = new ArrayList<Posting>();
+		
+		SortedMap<String,List<Integer>> posPerDocument = new TreeMap<String,List<Integer>>();
+		
+		for (String encoded : encodedPostings) {
+			Posting p = decode(encoded);
+			List<Integer> positions = posPerDocument.get(p.getName());
+			if (positions == null) {
+				posPerDocument.put(p.getName(), p.getPositions());
+			} else {
+				// TODO: merge positions
+			}
+		}
+		
+		return result;
+	}
+
+	private static Posting decode(String encoded) {
+		// TODO decode textified posting
+		return null;
 	}
 	
 }
