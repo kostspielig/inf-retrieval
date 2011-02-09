@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,11 @@ public class IndexConstructor {
 	 * The maximum capacity of the index in memory.
 	 */
 	private static final int MAX_CAPACITY = 10000;
+	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
+	private static final String FILE_ENCODING = "UTF-8";
+	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
+	private static final String SEPARATOR = "\t";
+	private String root;
 	/**
 	 * Iterates recursively over all documents in the root folder and its subfolders.
 	 */
@@ -47,12 +53,6 @@ public class IndexConstructor {
 	 * the inverted index.
 	 */
 	private HashMap<String, List<Posting>> index;
-	
-	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
-	private static final String FILE_ENCODING = "UTF-8";
-	
-	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
-
 	
 	/**
 	 * The Porter Stemmer used to stem tokens
@@ -79,7 +79,6 @@ public class IndexConstructor {
 	 * incrementing number of documents
 	 */
 	private int docNr = 0;
-	
 	/**
 	 * Initializes a new object that is responsible for constructing the inverted index. 
 	 * 
@@ -88,6 +87,7 @@ public class IndexConstructor {
 	 * @param outDir 
 	 */
 	public IndexConstructor(String root, String outDir, boolean enableCompression) {
+		this.root = root;
 		this.docIterator = new DocumentIterator(root);
 		this.parser = new Parser();
 		this.index = new HashMap<String, List<Posting>>(MAX_CAPACITY+1,1.0f);
@@ -112,7 +112,7 @@ public class IndexConstructor {
 			this.docNr++;
 		}
 		writeToDisk();
-		mergeIntermediateResults();
+//		mergeIntermediateResults();
 	}
 
 	/**
@@ -140,12 +140,11 @@ public class IndexConstructor {
 	/**
 	 * Extracts the document name from the path of the passed file.
 	 * 
-	 * @param nextDoc
+	 * @param doc
 	 * @return the document name
 	 */
-	private String extractDocName(File nextDoc) {
-		// TODO extract doc name (the path beginning in the root directory)
-		return nextDoc.getName();
+	private String extractDocName(File doc) {
+		return doc.getAbsolutePath().substring(this.root.length()+1);
 	}
 
 	/**
@@ -260,9 +259,78 @@ public class IndexConstructor {
 	 * Reads the intermediate results from disk and merges them into a new output file.
 	 */
 	private void mergeIntermediateResults() {
-		// TODO implement merging		
-	}
+		try {
+			// read in intermediate files
+			File dir = new File(this.intermediateOut);
+			if (dir.isDirectory()) {
+				File[] files = dir.listFiles();
+				ArrayList<BufferedReader> readers = new ArrayList<BufferedReader>(files.length);
+				for (File file : files) {
+					readers.add(new BufferedReader(new InputStreamReader(
+							new FileInputStream(file), FILE_ENCODING)));
+				}
 
+				//initialize output writer
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.out)), FILE_ENCODING));
+
+				//initialize data structure holding all files with mappings from name to positions
+				String[][] currentRecords = new String[files.length][2];
+				
+				String smallestStem = null;
+				//TODO Why do we need count of Smallest Stem?
+				int countOfSmallestStem = 0;
+				List<Integer> idxOfSmallestTerms = new LinkedList<Integer>();
+				List<Integer> firstTermsofFiles = new ArrayList<Integer>();
+
+
+				for (int i = 0; i < files.length; i++){
+					idxOfSmallestTerms.add(i);
+					firstTermsofFiles.add(i);
+				}
+				while (!firstTermsofFiles.isEmpty()) {
+					for (int idx : idxOfSmallestTerms) {
+						String line = readers.get(idx).readLine();
+						if (line == null){
+							firstTermsofFiles.remove(firstTermsofFiles.indexOf(idx)); // TODO: BUG: index idx might no longer be valid, as elements could have been removed in the previous iteration
+						}else
+							//TODO only split at first tab, keep the rest as is
+							currentRecords[idx] = line.split(SEPARATOR);
+					}
+					if (firstTermsofFiles.isEmpty())
+						break;
+					idxOfSmallestTerms.clear();
+					smallestStem = currentRecords[firstTermsofFiles.get(0)][0];
+
+					for (Integer arr : firstTermsofFiles){
+						int cmp = smallestStem.compareTo(currentRecords[arr][0]); 
+						if ( cmp > 0 ){ 
+							smallestStem = currentRecords[arr][0];
+							idxOfSmallestTerms.clear();
+							idxOfSmallestTerms.add(arr);
+							countOfSmallestStem = Integer.valueOf(currentRecords[arr][1]);
+						} else if(cmp == 0){
+							idxOfSmallestTerms.add(arr);
+							countOfSmallestStem += Integer.valueOf(currentRecords[arr][1]);
+						}
+					}
+
+					bw.write(smallestStem + SEPARATOR + countOfSmallestStem);
+
+					bw.newLine();
+					countOfSmallestStem = 0;
+				}
+
+				for(BufferedReader br: readers){
+					br.close();
+				}
+				bw.close();
+			}
+
+		}	 catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();		
+		}
+	}
 	/**
 	 * @param args
 	 */
