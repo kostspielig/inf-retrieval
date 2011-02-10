@@ -1,10 +1,8 @@
 package ir.assignment04;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * CS 121 Information Retrieval <br />
@@ -19,7 +17,7 @@ import java.util.TreeMap;
  * @author Fabian Lindenberg
  * @author Lea Voget
  */
-public class Posting implements Comparable<Posting> {
+public class Posting {
 
 	private static final String DELIMITER_POSITIONS = ",";
 	private static final String DELIMITER_POSTING = "\t";
@@ -32,18 +30,30 @@ public class Posting implements Comparable<Posting> {
 	private int frequency;
 	private List<Integer> positions;
 	
-	public Posting(int docID, String name, int pos){
+	public Posting(Integer docID, String name, int pos){
+		this.id = docID;
 		this.name = name;
 		this.positions = new LinkedList<Integer>();
 		this.positions.add(pos);
 		this.frequency = 1;
-		this.id = docID;
 	}
 	
+	private Posting() {	}
+
 	private void incrementFrequency(){
 		this.frequency ++;
 	}
 	
+	public void merge(Posting p) {
+		if ((this.id == null || !this.id.equals(p.getId()))
+				&& (this.name == null || !this.name.equals(p.getName()))) {
+			throw new IllegalArgumentException("The postings can not be merged, since they belong to different documents.");
+		}
+		this.frequency += p.getFrequency();
+		this.positions.addAll(p.getPositions());
+		Collections.sort(this.positions);
+	}
+
 	public void addPostion(int pos){
 		this.positions.add(pos);
 		incrementFrequency();
@@ -61,21 +71,28 @@ public class Posting implements Comparable<Posting> {
 		return positions;
 	}
 
-	public Integer getID() {
+	public Integer getId() {
 		return id;
 	}
 	
-	@Override
-	public int compareTo(Posting o) {
-		if (this == o) {
-			return 0;
-		}
-		return this.name.compareTo(o.getName());
-	}
-
-	
 	// CLASS methods
 	
+	private void setId(Integer id) {
+		this.id = id;
+	}
+
+	private void setName(String name) {
+		this.name = name;
+	}
+
+	private void setFrequency(int frequency) {
+		this.frequency = frequency;
+	}
+
+	private void setPositions(List<Integer> positions) {
+		this.positions = positions;
+	}
+
 	public static String encodePostings(List<Posting> postings, boolean enableCompression) {
 		String result;
 		
@@ -106,11 +123,11 @@ public class Posting implements Comparable<Posting> {
 		
 		for (Posting p : postings) {
 			if (oldID != null){
-				compressedID = p.getID() - oldID;
+				compressedID = p.getId() - oldID;
 			} else {
-				compressedID = p.getID();
+				compressedID = p.getId();
 			}
-			oldID = p.getID();
+			oldID = p.getId();
 			strBuilder.append(encodePosting(String.valueOf(compressedID), p.getFrequency(), deltaEncoding(p.getPositions())));
 			strBuilder.append(DELIMITER_POSTING);
 		}
@@ -156,27 +173,61 @@ public class Posting implements Comparable<Posting> {
 		return strBuilder.toString();
 	}
 
-	public static List<Posting> decodeAndMergePostings(List<String> encodedPostings) {
-		List<Posting> result = new ArrayList<Posting>();
+	public static Posting decodePosting(String encoded) {
+		Posting p = new Posting();
+
+		String[] parts = encoded.split(DELIMITER_POSTINGPART);	
 		
-		SortedMap<String,List<Integer>> posPerDocument = new TreeMap<String,List<Integer>>();
-		
-		for (String encoded : encodedPostings) {
-			Posting p = decode(encoded);
-			List<Integer> positions = posPerDocument.get(p.getName());
-			if (positions == null) {
-				posPerDocument.put(p.getName(), p.getPositions());
-			} else {
-				// TODO: merge positions
-			}
+		try {
+			p.setId(Integer.valueOf(parts[0])); // ID
+		} catch (NumberFormatException e) {
+			p.setName(parts[0]); // name
 		}
 		
-		return result;
+		p.setFrequency(Integer.valueOf(parts[1]));
+		
+		List<Integer> positions = new LinkedList<Integer>();
+		for (String pos : parts[2].split(DELIMITER_POSITIONS)) {
+			positions.add(Integer.valueOf(pos));
+		}
+		p.setPositions(positions);
+		
+		return p;
 	}
 
-	private static Posting decode(String encoded) {
-		// TODO decode textified posting
-		return null;
+	public static Posting decodeAndDecompressPosting(String encoded, Integer offsetID) {
+		Posting p = new Posting();
+
+		String[] parts = encoded.split(DELIMITER_POSTINGPART);	
+		
+		// decode either ID or name; the ID needs to be decompressed
+		try {
+			Integer id = Integer.valueOf(parts[0]); // ID
+			if (offsetID != null) {
+				id += offsetID;
+			}
+			p.setId(id);
+		} catch (NumberFormatException e) {
+			p.setName(parts[0]); // name
+		}
+		
+		// decode frequency
+		p.setFrequency(Integer.valueOf(parts[1]));
+		
+		// decode and decompress frequencies
+		List<Integer> positions = new LinkedList<Integer>();
+		Integer previousPos = null;
+		for (String posStr : parts[2].split(DELIMITER_POSITIONS)) {
+			Integer pos = Integer.valueOf(posStr);
+			if (previousPos != null) {
+				pos += previousPos;
+			}
+			positions.add(pos);
+			previousPos = pos;
+		}
+		p.setPositions(positions);
+		
+		return p;
 	}
 	
 }
