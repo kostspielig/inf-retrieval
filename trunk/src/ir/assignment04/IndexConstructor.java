@@ -69,16 +69,18 @@ public class IndexConstructor {
 	/**
 	 * The directory in which intermediate results are stored.
 	 */
-	private String intermediateOut;
+	private String intermediateOutPath;
+	private String idMappingOut;
 	/**
 	 * true if output files shall be compressed
 	 */
-	private boolean enableCompression;
+	private boolean compressionEnabled;
 	private int fileNr = 0;
 	/**
 	 * incrementing number of documents
 	 */
 	private int docNr = 0;
+	private Map<Integer,String> idToNameMapping = new HashMap<Integer,String>();
 	/**
 	 * Initializes a new object that is responsible for constructing the inverted index. 
 	 * 
@@ -94,8 +96,9 @@ public class IndexConstructor {
 		this.stemmer = new Stemmer();
 		this.stopwords = loadStopwords();
 		this.out = outDir + File.separator + "index_" + (enableCompression ? "compressed" : "plain") + ".txt";
-		this.intermediateOut = outDir + File.separator + "intermediate" + File.separator;
-		this.enableCompression = enableCompression;
+		this.intermediateOutPath = outDir + File.separator + "intermediate" + File.separator;
+		this.idMappingOut = outDir + File.separator + "idsToDocNames.txt";
+		this.compressionEnabled = enableCompression;
 	}
 	
 	/**
@@ -106,13 +109,16 @@ public class IndexConstructor {
 			File nextDoc = this.docIterator.next();
 			Email e = new Email(nextDoc);
 			Vector<String> tokens = this.parser.parse(e.getBody());
+			String docName = extractDocName(nextDoc);
+			this.idToNameMapping.put(this.docNr,docName);
 			for(int i = 0; i < tokens.size(); i++) {
-				indexToken(this.docNr, extractDocName(nextDoc), tokens.get(i), i);
+				indexToken(this.docNr, docName, tokens.get(i), i);
 			}
 			this.docNr++;
 		}
-		writeToDisk();
-//		mergeIntermediateResults();
+		writeIntermediateIndex();
+		mergeIntermediateResults();
+		writeIdMapping();
 	}
 
 	/**
@@ -156,7 +162,6 @@ public class IndexConstructor {
 	 * @param pos the position of the token in the document
 	 */
 	private void indexToken(int docID, String docName, String token, int pos) {
-		// TODO: use docIDs instead of name (if compression flag is set)
 		String stemmed = stem(token);
 		if (isValidToken(stemmed)) {
 			List<Posting> postings = this.index.get(stemmed);
@@ -170,8 +175,8 @@ public class IndexConstructor {
 				int i=0;
 				for (Posting p : postings) {
 					int comparison;
-					if (this.enableCompression) {
-						comparison = p.getID().compareTo(docID);
+					if (this.compressionEnabled) {
+						comparison = p.getId().compareTo(docID);
 					} else {
 						comparison = p.getName().compareTo(docName);
 					}
@@ -222,27 +227,26 @@ public class IndexConstructor {
 	 */
 	private void flushIndexToDiskIfNecessary() {
 		if (this.index.size() >= MAX_CAPACITY) {
-			writeToDisk();
+			writeIntermediateIndex();
 		}
 	}
 
 	/**
 	 * Writes the intermediate index to disk.
 	 */
-	private void writeToDisk() {
+	private void writeIntermediateIndex() {
 		// sort hash maps based on keys
 		SortedMap<String, List<Posting>> sorted = new TreeMap<String, List<Posting>>(this.index);
 		
-		File output = new File(this.intermediateOut + "intermediate_" + this.fileNr++);
+		File output = new File(this.intermediateOutPath + "intermediate_" + this.fileNr++ + ".txt");
 		File parentDir = output.getParentFile();
 		if(! parentDir.exists()) {
 			parentDir.mkdirs();
 		}
 		try {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
-			// TODO: do not compress
 			for (Map.Entry<String, List<Posting>> entry : sorted.entrySet()) {
-				bw.write(entry.getKey() + "\t" + Posting.encodePostings(entry.getValue(), this.enableCompression));
+				bw.write(entry.getKey() + "\t" + Posting.encodePostings(entry.getValue(), this.compressionEnabled));
 				bw.newLine();
 			}
 			
@@ -260,7 +264,7 @@ public class IndexConstructor {
 	 */
 	private void mergeIntermediateResults() {
 		try {
-			File dir = new File(this.intermediateOut);
+			File dir = new File(this.intermediateOutPath);
 			if (dir.isDirectory()) {
 				// initialize readers for all intermediate results
 				File[] files = dir.listFiles();
@@ -277,7 +281,6 @@ public class IndexConstructor {
 				String[][] currentRecords = new String[files.length][2];
 				
 				String smallestTerm = null;
-				List<String> postingsToMerge = new LinkedList<String>();
 				List<Integer> idxOfSmallestTerms = new LinkedList<Integer>();
 				List<Integer> currentFileIndices = new ArrayList<Integer>();
 
@@ -302,6 +305,7 @@ public class IndexConstructor {
 					idxOfSmallestTerms.clear();
 					smallestTerm = currentRecords[currentFileIndices.get(0)][0];
 
+					List<String> postingsToMerge = new LinkedList<String>();
 					for (Integer idxOfFile : currentFileIndices){
 						int cmp = smallestTerm.compareTo(currentRecords[idxOfFile][0]); 
 						if ( cmp > 0 ){ // found smaller term
@@ -321,8 +325,8 @@ public class IndexConstructor {
 						}
 					}
 					
-					List<Posting> merged = Posting.decodeAndMergePostings(postingsToMerge);
-					bw.write(smallestTerm + SEPARATOR + Posting.encodePostings(merged, enableCompression));
+					List<Posting> merged = decodeAndMergePostingLists(postingsToMerge);
+					bw.write(smallestTerm + SEPARATOR + Posting.encodePostings(merged, compressionEnabled));
 
 					bw.newLine();
 				}
@@ -339,6 +343,62 @@ public class IndexConstructor {
 		}
 	}
 	
+	private List<Posting> decodeAndMergePostingLists(List<String> encodedPostingLists) {
+		SortedMap<String,Posting> postingPerDocument = new TreeMap<String,Posting>();
+		
+		// for every encoded list of encoded postings
+		for (String encodedList : encodedPostingLists) {
+			// for every encoded posting
+			for (String encodedPosting : encodedList.split(SEPARATOR)) {
+				// decode
+				Posting p;
+				String identifier;
+				Integer previousID = null;
+				if (compressionEnabled) {
+					p = Posting.decodeAndDecompressPosting(encodedPosting, previousID);
+					previousID = p.getId();
+					identifier = String.valueOf(p.getId());
+				} else {
+					p = Posting.decodePosting(encodedPosting);
+					identifier = p.getName();
+				}
+				
+				// merge positions
+				Posting existingPosting = postingPerDocument.get(identifier);
+				if (existingPosting == null) {
+					existingPosting = p; 
+				} else {
+					existingPosting.merge(p);
+				}
+				postingPerDocument.put(identifier, existingPosting);
+			}
+		}
+		
+		return new LinkedList<Posting>(postingPerDocument.values());
+	}
+
+	private void writeIdMapping() {
+		if (compressionEnabled) {
+			File output = new File(this.idMappingOut);
+			File parentDir = output.getParentFile();
+			if(! parentDir.exists()) {
+				parentDir.mkdirs();
+			}
+			try {
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
+
+				for (Map.Entry<Integer, String> entry : idToNameMapping.entrySet()) {
+					bw.write(entry.getKey() + "\t" + entry.getValue());
+					bw.newLine();
+				}
+
+				bw.close();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * @param args
