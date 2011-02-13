@@ -1,0 +1,78 @@
+% 
+% Information Retrieval
+% -------------------------------
+% University of California Irvine
+% 
+% Author:
+% - María Carrasco Rodríguez
+% - Fabian Lindenberg
+% - Lea Voget
+
+\documentclass[a4paper,11pt,oneside]{book}
+\usepackage{wrapfig} 
+\usepackage{helvet}
+\usepackage{phdthesis}
+\usepackage{kostspielig}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{appendix}
+
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{epsfig}
+
+
+%\pagestyle{fancy}
+%\fancyhead{}
+%\fancyhead[L]{\textsf{\textbf{CS 221 Information Retrieval}\\ Assignment 2}}
+%\fancyhead[R]{\textsf{Maria Carrasco (16874129)\\ Fabian Lindenberg (74076658)}}
+%\fancyfoot[R]{\textsf{\thepage}}
+%\renewcommand{\footrulewidth}{0.4pt}
+%\cfoot[]{}
+
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO: #1}}}
+
+\hypersetup{colorlinks, 
+           linkbordercolor= 1 0.8 0.8,
+           citecolor=black,
+           filecolor=black,
+           linkcolor=black,
+           urlcolor=black,
+           bookmarksopen=true,
+           pdftex}
+\title{Information Retrieval }
+\subtitle{Assignment 4}
+\location{University of California Irvine}
+\author{ María Carrasco Rodríguez (16874129) \\
+		Fabian Lindenberg (74076658) \\
+		Lea Voget ()}
+
+
+
+\begin{document}
+
+\kostspieligmaketitle
+
+%\tableofcontents
+%\pagebreak
+% \startapendix
+
+\setcounter{chapter}{1}
+\chapter{Quantify the data}
+
+\begin{enumerate}
+	\item \emph{Comment:} Unfortunately, our installed Antivirus software\footnote{Avira Antivir Personal 10} reported two of the files contained in the archive as being infected by viruses and put them under quarantine. Consequently, the following results may vary slightly from the true numbers.
+		\begin{enumerate}
+			\renewcommand{\labelenumii}{\alph{enumii})}
+			\item \label{people} Number of people targeted in the Enron data set: $150$
+			\item \label{individual} Number of individual data files: $517,428$
+			\item \label{sent}Number of sent data files: $128,462$
+			\item We consider Inboxes all folders that do not contain sent e-mails. According to this definition, the number of data files in inboxes is, thus, the total number of files minus the number of sent data files: $517,428 - 128,462 = 388,966$
+			\item \label{top} The ten persons with the largest number of files are in descending order ``kaminski-v'', ``dasovich-j'', ``kean-s'', ``mann-k'', ``jones-t'', ``shackleton-s'', ``taylor-m'', ``farmer-d'', ``germany-c'', and ``beck-s''.
+		\end{enumerate}
+	\item To quantify the data, we wrote a Java program that iterated over the files and subfolders. For subtask \ref{people}), the number of folders in the first hierarchy level were counted. To count all individual data files in subtask \ref{individual}), the program scanned \emph{recursively} through all subfolders. For subtask \ref{sent}), only files in folders whose names matched the \emph{regular expression} \texttt{(.*[$\,\hat{}$A-Za-z])?sent([$\,\hat{}$A-Za-z].*)?} were counted. To solve subtask \ref{top}), we maintained a sorted mapping between number of files (key) and a list of folder names (value), and returned the first ten values. If multiple folders of equal size were ranked tenth, all these folders would be returned.
+\end{enumerate}
+
+\end{document}
