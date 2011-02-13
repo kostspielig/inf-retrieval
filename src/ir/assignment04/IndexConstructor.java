@@ -34,7 +34,7 @@ public class IndexConstructor {
 	/**
 	 * The maximum capacity of the index in memory.
 	 */
-	private static final int MAX_CAPACITY = 2;
+	private static final int MAX_CAPACITY = 50000;
 	private static final String DEFAULT_STOPWORDS_FILE = "stopwords.txt";
 	private static final String FILE_ENCODING = "UTF-8";
 	private static final String SPECIAL_CHARS = "[!\"§$%&/()=?`´{}\\[\\]\\^°*+~'#-_.:,;<>|]+";
@@ -228,6 +228,7 @@ public class IndexConstructor {
 	private void flushIndexToDiskIfNecessary() {
 		if (this.index.size() >= MAX_CAPACITY) {
 			writeIntermediateIndex();
+			System.out.println("Write out intermediate result: " + this.fileNr);
 		}
 	}
 
@@ -349,11 +350,11 @@ public class IndexConstructor {
 		// for every encoded list of encoded postings
 		for (String encodedList : encodedPostingLists) {
 			// for every encoded posting
+			Integer previousID = null;
 			for (String encodedPosting : encodedList.split(SEPARATOR)) {
 				// decode
 				Posting p;
 				String identifier;
-				Integer previousID = null;
 				if (compressionEnabled) {
 					p = Posting.decodeAndDecompressPosting(encodedPosting, previousID);
 					previousID = p.getId();
