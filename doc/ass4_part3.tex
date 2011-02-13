@@ -62,7 +62,7 @@
 \setcounter{chapter}{2}
 \chapter{Index the data}
 
-We compressed the index in the following way: First of all, we used delta encoding to encode the positions of a term within one document. That is, instead of saving the absolute positions of the terms, we stored the difference to the previous position. Therefore, we were able to store smaller numbers which needed less decimal digits.
+We indexed 518,643  unique terms and compressed the index in the following way: First of all, we used delta encoding to encode the positions of a term within one document. That is, instead of saving the absolute positions of the terms, we stored the difference to the previous position. Therefore, we were able to store smaller numbers which needed less decimal digits.
 
 Moreover, we used short document IDs instead of the long human readable document identifier strings. Then, we delta encoded the doc IDs as well. So, if a term occurred in three documents, we represented the ID of the second document as the difference to the first document and the third document's ID was encoded as the difference to the second document's ID.
 
