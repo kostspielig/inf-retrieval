@@ -1,0 +1,72 @@
+% 
+% Information Retrieval
+% -------------------------------
+% University of California Irvine
+% 
+% Author:
+% - María Carrasco Rodríguez
+% - Fabian Lindenberg
+% - Lea Voget
+
+\documentclass[a4paper,11pt,oneside]{book}
+\usepackage{wrapfig} 
+\usepackage{helvet}
+\usepackage{phdthesis}
+\usepackage{kostspielig}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{appendix}
+
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{epsfig}
+
+
+%\pagestyle{fancy}
+%\fancyhead{}
+%\fancyhead[L]{\textsf{\textbf{CS 221 Information Retrieval}\\ Assignment 2}}
+%\fancyhead[R]{\textsf{Maria Carrasco (16874129)\\ Fabian Lindenberg (74076658)}}
+%\fancyfoot[R]{\textsf{\thepage}}
+%\renewcommand{\footrulewidth}{0.4pt}
+%\cfoot[]{}
+
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO: #1}}}
+
+\hypersetup{colorlinks, 
+           linkbordercolor= 1 0.8 0.8,
+           citecolor=black,
+           filecolor=black,
+           linkcolor=black,
+           urlcolor=black,
+           bookmarksopen=true,
+           pdftex}
+\title{Information Retrieval }
+\subtitle{Assignment 4}
+\location{University of California Irvine}
+\author{ María Carrasco Rodríguez (16874129) \\
+		Fabian Lindenberg (74076658) \\
+		Lea Voget (45869178)}
+
+
+
+\begin{document}
+
+\kostspieligmaketitle
+
+%\tableofcontents
+%\pagebreak
+% \startapendix
+
+\setcounter{chapter}{2}
+\chapter{Index the data}
+
+We compressed the index in the following way: First of all, we used delta encoding to encode the positions of a term within one document. That is, instead of saving the absolute positions of the terms, we stored the difference to the previous position. Therefore, we were able to store smaller numbers which needed less decimal digits.
+
+Moreover, we used short document IDs instead of the long human readable document identifier strings. Then, we delta encoded the doc IDs as well. So, if a term occurred in three documents, we saved the ID of the second document as the difference to the first document and the third document's ID was represented as the difference to the second document's ID.
+
+This approach led to the necessity of a data structure mapping the document IDs to the actual string identifiers.
+
+
+\end{document}
