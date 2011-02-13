@@ -19,7 +19,7 @@ public class Parser {
 	/**
 	 * Delimiters used for tokenizing the content
 	 */
-	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;/!?'~@#*+§$%&()=`´{[]}|<>";
+	private static final String TOKEN_DELIMITER = " \t\n\r\f\".,:;-/!?'~@#*+§$%&()=`´{[]}|<>";
 	
 	
 	public Vector<String> parse(String text) {
