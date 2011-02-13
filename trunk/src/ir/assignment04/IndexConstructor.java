@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -289,6 +290,23 @@ public class IndexConstructor {
 					idxOfSmallestTerms.add(i);
 					currentFileIndices.add(i);
 				}
+				
+				// for later comparison of string encoded IDs
+				Comparator<String> identifierComparator;
+				if (compressionEnabled) {
+					identifierComparator = new Comparator<String>(){
+						public int compare(String id1, String id2) {
+							return Integer.valueOf(id1).compareTo(Integer.valueOf(id2));
+						}
+					};
+				} else {
+					identifierComparator = new Comparator<String>(){
+						public int compare(String id1, String id2) {
+							return id1.compareTo(id2);
+						}
+					};
+				}
+				
 				while (!currentFileIndices.isEmpty()) {
 					for (int idx : idxOfSmallestTerms) {
 						String line = readers.get(idx).readLine();
@@ -325,8 +343,7 @@ public class IndexConstructor {
 							postingsToMerge.add(currentRecords[idxOfFile][1]);
 						}
 					}
-					
-					List<Posting> merged = decodeAndMergePostingLists(postingsToMerge);
+					List<Posting> merged = decodeAndMergePostingLists(postingsToMerge, identifierComparator);
 					bw.write(smallestTerm + SEPARATOR + Posting.encodePostings(merged, compressionEnabled));
 
 					bw.newLine();
@@ -344,13 +361,13 @@ public class IndexConstructor {
 		}
 	}
 	
-	private List<Posting> decodeAndMergePostingLists(List<String> encodedPostingLists) {
-		SortedMap<String,Posting> postingPerDocument = new TreeMap<String,Posting>();
+	private List<Posting> decodeAndMergePostingLists(List<String> encodedPostingLists, Comparator<String> identifierComparator) {
+		SortedMap<String,Posting> postingPerDocument = new TreeMap<String,Posting>(identifierComparator);
 		
 		// for every encoded list of encoded postings
 		for (String encodedList : encodedPostingLists) {
-			// for every encoded posting
 			Integer previousID = null;
+			// for every encoded posting
 			for (String encodedPosting : encodedList.split(SEPARATOR)) {
 				// decode
 				Posting p;
