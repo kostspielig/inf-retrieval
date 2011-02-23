@@ -1,4 +1,4 @@
-package ir.assignment05;
+package ir.assignment05.utils;
 
 public class BookInfo {
 	private String name;

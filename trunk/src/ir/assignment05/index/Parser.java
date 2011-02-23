@@ -1,4 +1,4 @@
-package ir.assignment05;
+package ir.assignment05.index;
 
 import java.util.StringTokenizer;
 import java.util.Vector;

@@ -1,4 +1,4 @@
-package ir.assignment05;
+package ir.assignment05.index;
 
 import java.util.Collections;
 import java.util.LinkedList;
