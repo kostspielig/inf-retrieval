@@ -28,7 +28,7 @@ public class Posting {
 	private Integer id;
 	private String name;
 	private int frequency;
-	private double tfIdf;
+	private Double tfIdf;
 	private List<Integer> positions;
 	
 	public Posting(Integer docID, String name, int pos){
@@ -37,6 +37,7 @@ public class Posting {
 		this.positions = new LinkedList<Integer>();
 		this.positions.add(pos);
 		this.frequency = 1;
+		this.tfIdf = null;
 	}
 	
 	private Posting() {	}
@@ -89,7 +90,7 @@ public class Posting {
 		return id;
 	}
 	
-	public double getTfIdf() {
+	public Double getTfIdf() {
 		return tfIdf;
 	}
 
@@ -128,7 +129,8 @@ public class Posting {
 		StringBuilder strBuilder = new StringBuilder();
 		
 		for (Posting p : postings) {
-			strBuilder.append(encodePosting(p.getName(), p.getFrequency(), p.getPositions()));
+			Double freqValue = (p.getTfIdf() == null) ? p.getFrequency() : p.getTfIdf();
+			strBuilder.append(encodePosting(p.getName(), freqValue, p.getPositions()));
 			strBuilder.append(DELIMITER_POSTING);
 		}
 		
@@ -147,7 +149,8 @@ public class Posting {
 				compressedID = p.getId();
 			}
 			oldID = p.getId();
-			strBuilder.append(encodePosting(String.valueOf(compressedID), p.getFrequency(), deltaEncoding(p.getPositions())));
+			Double freqValue = (p.getTfIdf() == null) ? p.getFrequency() : p.getTfIdf(); 
+			strBuilder.append(encodePosting(String.valueOf(compressedID), freqValue, deltaEncoding(p.getPositions())));
 			strBuilder.append(DELIMITER_POSTING);
 		}
 		
@@ -172,7 +175,15 @@ public class Posting {
 		return result;
 	}
 
-	private static String encodePosting(String identifier, int frequency, List<Integer> positions){
+	/**
+	 * Encodes the values of a posting as a string.
+	 * 
+	 * @param identifier
+	 * @param frequency can be either the frequency or the tfidf value
+	 * @param positions
+	 * @return
+	 */
+	private static String encodePosting(String identifier, Double frequency, List<Integer> positions){
 		StringBuilder strBuilder = new StringBuilder();
 		
 		strBuilder.append(identifier);

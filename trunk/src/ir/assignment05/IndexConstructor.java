@@ -329,6 +329,7 @@ public class IndexConstructor {
 						}
 					}
 					List<Posting> merged = decodeAndMergePostingLists(postingsToMerge);
+					calculateAndStoreTFIDF(merged);
 					bw.write(smallestTerm + SEPARATOR + Posting.encodePostings(merged, compressionEnabled));
 
 					bw.newLine();
@@ -346,6 +347,13 @@ public class IndexConstructor {
 		}
 	}
 	
+	private void calculateAndStoreTFIDF(List<Posting> postings) {
+		for (Posting p : postings) {
+			BookInfo book = idToNameMapping.get(p.getId());
+			p.calculateAndStoreTfIdf(book.getLength(), idToNameMapping.size(), postings.size());
+		}
+	}
+
 	private List<Posting> decodeAndMergePostingLists(List<String> encodedPostingLists) {
 		SortedMap<Integer,Posting> postingPerDocument = new TreeMap<Integer,Posting>();
 		
@@ -370,7 +378,7 @@ public class IndexConstructor {
 					existingPosting.merge(p);
 				}
 				// TODO: tfidf  calc must take place later on! move the next 2 code lines
-//				BookInfo book = idToNameMapping.get(existingPosting.getId());
+//				
 //				existingPosting.calculateAndStoreTfIdf(book.getLength(), idToNameMapping.size(), nrDocsContainingTerm)
 				postingPerDocument.put(p.getId(), existingPosting);
 			}
