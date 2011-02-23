@@ -1,8 +1,9 @@
-package ir.assignment05;
+package ir.assignment05.quantification;
 
 import java.util.Vector;
 
 import ir.assignment02.IO;
+import ir.assignment04.DocumentIterator;
 import ir.assignment04.Parser;
 
 
@@ -18,6 +19,8 @@ import ir.assignment04.Parser;
  */
 public class Quantifier {
 
+	private DocumentIterator docIterator;
+	
 	public static void main(String[] args) {
 		if (args.length < 1) {
 			System.out.println("Please specify the file where the book is stored.");

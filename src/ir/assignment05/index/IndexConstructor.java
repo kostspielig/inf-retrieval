@@ -1,4 +1,7 @@
-package ir.assignment05;
+package ir.assignment05.index;
+
+import ir.assignment05.utils.BookInfo;
+import ir.assignment05.utils.Stemmer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -8,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -323,7 +325,7 @@ public class IndexConstructor {
 							postingsToMerge.add(currentRecords[idxOfFile][1]);
 						} else if(cmp == 0){ // found equally small term
 							// add idx of equally small term
-							idxOfSmallestTerms.add(idxOfFile);
+							idxOfSmallestTerms.add(idxOfFile); 
 							// add posting list of equally small term
 							postingsToMerge.add(currentRecords[idxOfFile][1]);
 						}
