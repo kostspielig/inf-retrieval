@@ -9,6 +9,6 @@ package ir.assignment05.search;
  * @author Fabian Lindenberg
  * @author Lea Voget
  */
-public class ProximityRanker implements RankingMethod {
+public class ProximityRanker extends RankingMethod {
 
 }

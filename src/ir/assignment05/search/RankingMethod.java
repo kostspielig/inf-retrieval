@@ -12,6 +12,6 @@ package ir.assignment05.search;
  * @author Lea Voget
  *
  */
-public interface RankingMethod {
+public abstract class RankingMethod {
 
 }

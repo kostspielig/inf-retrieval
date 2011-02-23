@@ -9,6 +9,6 @@ package ir.assignment05.search;
  * @author Fabian Lindenberg
  * @author Lea Voget
  */
-public class TfIdfRanker implements RankingMethod {
+public class TfIdfRanker extends RankingMethod {
 
 }

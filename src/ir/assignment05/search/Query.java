@@ -1,13 +1,18 @@
 package ir.assignment05.search;
 
-public class Query {
+import java.util.LinkedList;
+import java.util.List;
 
-	/**
-	 * the query string
-	 */
-	private String q;
+public class Query {
 	
-	public Query(String q) {
-		this.q = q;
+	private List<String> terms;
+	
+	public Query() {
+		this.terms = new LinkedList<String>();
 	}
+	
+	public void addTerm(String term) {
+		terms.add(term);
+	}
+	
 }

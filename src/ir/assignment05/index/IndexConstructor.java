@@ -1,6 +1,7 @@
 package ir.assignment05.index;
 
 import ir.assignment05.utils.BookInfo;
+import ir.assignment05.utils.Parser;
 import ir.assignment05.utils.Stemmer;
 
 import java.io.BufferedReader;
