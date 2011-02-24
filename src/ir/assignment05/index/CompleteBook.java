@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * CS 121 Information Retrieval <br />
@@ -22,7 +20,7 @@ public class CompleteBook {
 
 	private static final String FILE_ENCODING = "UTF-8";
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	private static final String HEADER_END = "Language: English";//TODO BUG correct"*** START OF THIS PROJECT GUTENBERG EBOOK.*";
+	private static final String HEADER_END = "\\*\\*\\*(\\s)*START OF TH((IS)|E) PROJECT GUTENBERG EBOOK.*";
 	private String header;
 	private String content;
 	
