@@ -1,6 +1,5 @@
 package ir.assignment05.search;
 
-import java.util.Collection;
 
 /**
  * CS 121 Information Retrieval <br />
@@ -18,7 +17,7 @@ public class TfIdfRanker extends RankingMethod {
 	}
 
 	@Override
-	protected void calculateScores(Collection<SearchResult> searchResults) {
+	protected void calculateScores(Iterable<SearchResult> searchResults) {
 		// TODO Auto-generated method stub
 		
 	}
