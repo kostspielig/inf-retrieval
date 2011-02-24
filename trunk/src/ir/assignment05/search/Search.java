@@ -11,7 +11,8 @@ package ir.assignment05.search;
  */
 public class Search {
 
-	private static final RankingMethod DEFAULT_METHOD = new TfIdfRanker();
+	private static final String DEFAULT_PATH = "";
+	private static final RankingMethod DEFAULT_METHOD = new TfIdfRanker(DEFAULT_PATH);
 
 	public void search(Query q) {
 		search(q, DEFAULT_METHOD);
