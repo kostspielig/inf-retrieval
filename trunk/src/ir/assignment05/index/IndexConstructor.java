@@ -24,7 +24,7 @@ import java.util.Vector;
 
 /**
  * CS 121 Information Retrieval <br />
- * Assignment 04 <br />
+ * Assignment 05 <br />
  * Part 3 <br /><br />
  * 
  * Constructs and inverted index.
