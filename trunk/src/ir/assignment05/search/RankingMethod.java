@@ -5,6 +5,7 @@ import ir.assignment05.index.IndexIterator;
 import ir.assignment05.index.Posting;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -48,13 +49,14 @@ public abstract class RankingMethod {
 				}
 			}
 		}
+		Collection<SearchResult> searchResults = docIDtoSearchResult.values();
 		
-		calculateScores (docIDtoSearchResult.values());
-		//TODO: give how to compare search results
-		PriorityQueue<SearchResult> ranking = new PriorityQueue<SearchResult> (); 
+		calculateScores (searchResults);
+		Comparator<SearchResult> comparator = new SearchResultComparator();
+		PriorityQueue<SearchResult> ranking = new PriorityQueue<SearchResult> (searchResults.size(),comparator); 
 		ranking.addAll(docIDtoSearchResult.values());
 		return ranking;
 	}
 
-	protected abstract void calculateScores(Collection<SearchResult> searchResults) ;
+	protected abstract void calculateScores(Iterable<SearchResult> searchResults) ;
 }
