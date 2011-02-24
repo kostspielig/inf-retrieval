@@ -49,21 +49,22 @@ public class IndexIterator implements Iterator<IndexEntry> {
 	public IndexEntry next() {
 		IndexEntry current = next;
 		IndexEntry cached = null;
-		
-		String line;
-		try {
-			line = br.readLine();
-			if (line != null) {
-				String[] parts = line.split(SEPARATOR,2);
-				cached = new IndexEntry(parts[0],Posting.decodeAndDecompressPostingList(parts[1]));
-			} else {
-				br.close();
+		if (br != null) {
+			String line;
+			try {
+				line = br.readLine();
+				if (line != null) {
+					String[] parts = line.split(SEPARATOR,2);
+					cached = new IndexEntry(parts[0],Posting.decodeAndDecompressPostingList(parts[1]));
+				} else {
+					br.close();
+				}
+			} catch (IOException e) {
+				// error reading index file
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			// error reading index file
-			e.printStackTrace();
+
 		}
-		
 		
 		this.next = cached;
 		return current;

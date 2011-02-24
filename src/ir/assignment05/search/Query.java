@@ -15,4 +15,8 @@ public class Query {
 		terms.add(term);
 	}
 	
+	public boolean containsTerm (String term) {
+		return terms.contains(term);
+	}
+	
 }

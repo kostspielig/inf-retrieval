@@ -26,14 +26,14 @@ public class IndexEntry {
 	/**
 	 * @return the postings
 	 */
-	private List<Posting> getPostings() {
+	public List<Posting> getPostings() {
 		return postings;
 	}
 
 	/**
 	 * @return the term
 	 */
-	private String getTerm() {
+	public String getTerm() {
 		return term;
 	}
 	
