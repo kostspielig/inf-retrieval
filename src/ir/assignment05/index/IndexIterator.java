@@ -55,7 +55,7 @@ public class IndexIterator implements Iterator<IndexEntry> {
 				line = br.readLine();
 				if (line != null) {
 					String[] parts = line.split(SEPARATOR,2);
-					cached = new IndexEntry(parts[0],Posting.decodeAndDecompressPostingList(parts[1]));
+					cached = new IndexEntry(parts[0],Posting.decodeAndDecompressPostingList(parts[1], true));
 				} else {
 					br.close();
 				}

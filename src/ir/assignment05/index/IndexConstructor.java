@@ -252,7 +252,7 @@ public class IndexConstructor {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), FILE_ENCODING));
 			for (Map.Entry<String, List<Posting>> entry : sorted.entrySet()) {
 				//intermediate files are always written compressed to disk
-				bw.write(entry.getKey() + "\t" + Posting.encodePostings(entry.getValue(), true));
+				bw.write(entry.getKey() + "\t" + Posting.encodePostings(entry.getValue(), true, false));
 				bw.newLine();
 			}
 			
@@ -333,7 +333,7 @@ public class IndexConstructor {
 					}
 					List<Posting> merged = decodeAndMergePostingLists(postingsToMerge);
 					calculateAndStoreTFIDF(merged);
-					bw.write(smallestTerm + SEPARATOR + Posting.encodePostings(merged, compressionEnabled));
+					bw.write(smallestTerm + SEPARATOR + Posting.encodePostings(merged, compressionEnabled, true));
 
 					bw.newLine();
 				}
@@ -369,7 +369,7 @@ public class IndexConstructor {
 				// decode
 				Posting p;
 				//intermediate files are always compressed
-				p = Posting.decodeAndDecompressPosting(encodedPosting, previousID);
+				p = Posting.decodeAndDecompressPosting(encodedPosting, previousID, false);
 				previousID = p.getId();
 				
 				

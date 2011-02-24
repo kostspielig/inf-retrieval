@@ -22,6 +22,7 @@ public class Posting {
 	private static final String DELIMITER_POSITIONS = ",";
 	private static final String DELIMITER_POSTING = "\t";
 	private static final String DELIMITER_POSTINGPART = ":";
+	private static final int PRECISION = 1000;
 
 
 	private Integer id;
@@ -108,27 +109,39 @@ public class Posting {
 		this.frequency = frequency;
 	}
 
+	/**
+	 * @param tfIdf the tfIdf to set
+	 */
+	public void setTfIdf(Double tfIdf) {
+		this.tfIdf = tfIdf;
+	}
+
 	private void setPositions(List<Integer> positions) {
 		this.positions = positions;
 	}
 
-	public static String encodePostings(List<Posting> postings, boolean enableCompression) {
+	public static String encodePostings(List<Posting> postings, boolean enableCompression, boolean useTfIdf) {
 		String result;
 		
 		if (enableCompression) {
-			result = compressListOfPostings(postings);
+			result = compressListOfPostings(postings, useTfIdf);
 		} else {
-			result = textifyListOfPostings(postings);
+			result = textifyListOfPostings(postings, useTfIdf);
 		}
 		
 		return result;
 	}
 
-	private static String textifyListOfPostings(List<Posting> postings) {
+	private static String textifyListOfPostings(List<Posting> postings, boolean useTfIdf) {
 		StringBuilder strBuilder = new StringBuilder();
 		
 		for (Posting p : postings) {
-			Double freqValue = (p.getTfIdf() == null) ? p.getFrequency() : p.getTfIdf();
+			String freqValue;
+			if (useTfIdf) {
+				freqValue = String.valueOf(p.getTfIdf());
+			} else {
+				freqValue = String.valueOf(p.getFrequency());
+			}
 			strBuilder.append(encodePosting(p.getName(), freqValue, p.getPositions()));
 			strBuilder.append(DELIMITER_POSTING);
 		}
@@ -136,7 +149,7 @@ public class Posting {
 		return strBuilder.toString();
 	}
 
-	private static String compressListOfPostings(List<Posting> postings) {
+	private static String compressListOfPostings(List<Posting> postings, boolean useTfIdf) {
 		StringBuilder strBuilder = new StringBuilder();
 		Integer oldID = null;
 		int compressedID;
@@ -148,7 +161,14 @@ public class Posting {
 				compressedID = p.getId();
 			}
 			oldID = p.getId();
-			Double freqValue = (p.getTfIdf() == null) ? p.getFrequency() : p.getTfIdf(); 
+			
+			String freqValue;
+			if (useTfIdf) {
+				freqValue = String.valueOf(Math.round(p.getTfIdf()*PRECISION)/(double)PRECISION);
+			} else {
+				freqValue = String.valueOf(p.getFrequency());
+			}
+
 			strBuilder.append(encodePosting(String.valueOf(compressedID), freqValue, deltaEncoding(p.getPositions())));
 			strBuilder.append(DELIMITER_POSTING);
 		}
@@ -182,7 +202,7 @@ public class Posting {
 	 * @param positions
 	 * @return
 	 */
-	private static String encodePosting(String identifier, Double frequency, List<Integer> positions){
+	private static String encodePosting(String identifier, String frequency, List<Integer> positions){
 		StringBuilder strBuilder = new StringBuilder();
 		
 		strBuilder.append(identifier);
@@ -224,7 +244,7 @@ public class Posting {
 		return p;
 	}
 
-	public static Posting decodeAndDecompressPosting(String encoded, Integer offsetID) {
+	public static Posting decodeAndDecompressPosting(String encoded, Integer offsetID, boolean useTfIdf) {
 		Posting p = new Posting();
 
 		String[] parts = encoded.split(DELIMITER_POSTINGPART);	
@@ -241,7 +261,11 @@ public class Posting {
 		}
 		
 		// decode frequency
-		p.setFrequency(Integer.valueOf(parts[1]));
+		if (useTfIdf) {
+			p.setTfIdf(Double.valueOf(parts[1]));
+		} else {
+			p.setFrequency(Integer.valueOf(parts[1]));
+		}
 		
 		// decode and decompress frequencies
 		List<Integer> positions = new LinkedList<Integer>();
@@ -259,14 +283,14 @@ public class Posting {
 		return p;
 	}
 	
-	public static List<Posting> decodeAndDecompressPostingList(String encodedList) {
+	public static List<Posting> decodeAndDecompressPostingList(String encodedList, boolean useTfIdf) {
 		List<Posting> result = new LinkedList<Posting>();
 		Integer previousID = null;		
 		for (String encodedPosting : encodedList.split(DELIMITER_POSTING)) {
 			// decode
 			Posting p;
 			// assume index is compressed
-			p = Posting.decodeAndDecompressPosting(encodedPosting, previousID);
+			p = Posting.decodeAndDecompressPosting(encodedPosting, previousID, useTfIdf);
 			previousID = p.getId();
 			
 			result.add(p);
