@@ -24,7 +24,6 @@ public class Posting {
 	private static final String DELIMITER_POSTINGPART = ":";
 
 
-
 	private Integer id;
 	private String name;
 	private int frequency;
@@ -258,6 +257,21 @@ public class Posting {
 		p.setPositions(positions);
 		
 		return p;
+	}
+	
+	public static List<Posting> decodeAndDecompressPostingList(String encodedList) {
+		List<Posting> result = new LinkedList<Posting>();
+		Integer previousID = null;		
+		for (String encodedPosting : encodedList.split(DELIMITER_POSTING)) {
+			// decode
+			Posting p;
+			// assume index is compressed
+			p = Posting.decodeAndDecompressPosting(encodedPosting, previousID);
+			previousID = p.getId();
+			
+			result.add(p);
+		}
+		return result;
 	}
 	
 }
