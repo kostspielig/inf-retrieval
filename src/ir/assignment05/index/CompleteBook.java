@@ -22,7 +22,7 @@ public class CompleteBook {
 
 	private static final String FILE_ENCODING = "UTF-8";
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	private static final String HEADER_END = "*** START OF THIS PROJECT GUTENBERG EBOOK.*";
+	private static final String HEADER_END = "Language: English";//TODO BUG correct"*** START OF THIS PROJECT GUTENBERG EBOOK.*";
 	private String header;
 	private String content;
 	
