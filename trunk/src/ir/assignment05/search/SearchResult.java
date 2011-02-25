@@ -27,6 +27,15 @@ public class SearchResult {
 		this.score = null;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SearchResult [docID=" + docID + ", hits=" + hits + ", score="
+				+ score + "]";
+	}
+
 	public void addHit(Hit h) {
 		this.hits.add(h);
 	}

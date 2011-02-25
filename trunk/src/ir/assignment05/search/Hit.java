@@ -16,11 +16,13 @@ import java.util.List;
  */
 public class Hit {
 	private String term;
+	private double tfIdf;
 	private List<Integer> positions;
 	
-	public Hit(String term, List<Integer> pos) {
+	public Hit(double tfIdf, String term, List<Integer> pos) {
 		this.term = term;
 		this.positions = pos;
+		this.tfIdf = tfIdf;
 	}
 
 	/**
@@ -36,6 +38,21 @@ public class Hit {
 	public List<Integer> getPositions() {
 		return positions;
 	}
-	
+
+	/**
+	 * @return the tfIdf
+	 */
+	public double getTfIdf() {
+		return tfIdf;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Hit [term=" + term + ", tfIdf=" + tfIdf + ", positions="
+				+ positions + "]";
+	}
 	
 }

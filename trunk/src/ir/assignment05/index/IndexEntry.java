@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class IndexEntry {
 
-	private List<Posting> postings;
 	private String term;
+	private List<Posting> postings;
 
 	public IndexEntry(String term, List<Posting> postings) {
 		this.term = term;
@@ -36,5 +36,16 @@ public class IndexEntry {
 	public String getTerm() {
 		return term;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "IndexEntry [term=" + term + ", postings=" + postings + "]";
+	}
+
+	
+	
 	
 }

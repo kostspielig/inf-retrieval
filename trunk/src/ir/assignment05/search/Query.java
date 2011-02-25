@@ -18,5 +18,13 @@ public class Query {
 	public boolean containsTerm (String term) {
 		return terms.contains(term);
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Query [terms=" + terms + "]";
+	}
 	
 }

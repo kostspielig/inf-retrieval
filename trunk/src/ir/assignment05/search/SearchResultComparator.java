@@ -8,13 +8,13 @@ public class SearchResultComparator implements Comparator<SearchResult> {
 	public int compare(SearchResult x, SearchResult y) {
 		
 		if (x.getScore()!= null && y.getScore() == null)
-			return -1;
-		if(x.getScore()== null && y.getScore() != null)
 			return 1;
+		if(x.getScore()== null && y.getScore() != null)
+			return -1;
 		if (x.getScore()== null && y.getScore() == null)
 			return 0;
 		
-		return x.getScore().compareTo(y.getScore());
+		return -Double.compare(x.getScore(),y.getScore());
 	}
 
 }

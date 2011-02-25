@@ -10,15 +10,21 @@ package ir.assignment05.search;
  * @author Lea Voget
  */
 public class Search {
-
-	private static final String DEFAULT_PATH = "";
-	private static final RankingMethod DEFAULT_METHOD = new TfIdfRanker(DEFAULT_PATH);
-
-	public void search(Query q) {
-		search(q, DEFAULT_METHOD);
+	
+	public static Iterable<SearchResult> search(Query q, RankingMethod method) {
+		return method.search(q);
 	}
 	
-	public void search(Query q, RankingMethod method) {
-		// TODO: implement this :-)
+	
+	public static void main(String[] args) {
+		RankingMethod m = new TfIdfRanker(args[0]);
+		QueryBuilder qb = new QueryBuilder ();
+		
+		Iterable<SearchResult> r = Search.search(qb.construct("maria"), m);
+		
+		for (SearchResult res : r)
+			System.out.println(res.toString());
 	}
 }
+
+

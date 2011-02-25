@@ -45,6 +45,7 @@ public class QueryBuilder {
 	public QueryBuilder() {
 		this.stemmer = new Stemmer();
 		this.stopwords = loadStopwords();
+		this.parser = new Parser();
 	}
 	
 	/**

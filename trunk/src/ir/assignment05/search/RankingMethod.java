@@ -5,8 +5,11 @@ import ir.assignment05.index.IndexIterator;
 import ir.assignment05.index.Posting;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
@@ -30,7 +33,7 @@ public abstract class RankingMethod {
 		this.file_path = filepath;
 	}
 	
-	public Iterable<SearchResult> search (Query q) {
+	public Iterable<SearchResult> search(Query q) {
 		
 		Map<Integer,SearchResult> docIDtoSearchResult = new HashMap<Integer,SearchResult>();
 		
@@ -44,7 +47,7 @@ public abstract class RankingMethod {
 					if (s == null) {
 						s = new SearchResult(p.getId());
 					}
-					s.addHit(new Hit(i.getTerm(), p.getPositions()));
+					s.addHit(new Hit(p.getTfIdf(),i.getTerm(), p.getPositions()));
 					docIDtoSearchResult.put(p.getId(), s);
 				}
 			}
@@ -53,8 +56,9 @@ public abstract class RankingMethod {
 		
 		calculateScores (searchResults);
 		Comparator<SearchResult> comparator = new SearchResultComparator();
-		PriorityQueue<SearchResult> ranking = new PriorityQueue<SearchResult> (searchResults.size(),comparator); 
-		ranking.addAll(docIDtoSearchResult.values());
+		PriorityQueue <SearchResult> ranking = new PriorityQueue<SearchResult> ((searchResults.size() == 0) ? 1 : searchResults.size(),comparator); 
+		// TODO: check ordering of results (previous bug)
+		ranking.addAll(searchResults);
 		return ranking;
 	}
 
