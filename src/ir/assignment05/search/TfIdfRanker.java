@@ -18,8 +18,13 @@ public class TfIdfRanker extends RankingMethod {
 
 	@Override
 	protected void calculateScores(Iterable<SearchResult> searchResults) {
-		// TODO Auto-generated method stub
-		
+		for (SearchResult s : searchResults) {
+			double sumTfIdf = 0;
+			for (Hit h : s.getHits()) {
+				sumTfIdf += h.getTfIdf();
+			}
+			s.setScore(sumTfIdf);
+		}
 	}
 
 }

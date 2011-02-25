@@ -380,9 +380,6 @@ public class IndexConstructor {
 				} else {
 					existingPosting.merge(p);
 				}
-				// TODO: tfidf  calc must take place later on! move the next 2 code lines
-//				
-//				existingPosting.calculateAndStoreTfIdf(book.getLength(), idToNameMapping.size(), nrDocsContainingTerm)
 				postingPerDocument.put(p.getId(), existingPosting);
 			}
 		}

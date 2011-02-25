@@ -22,7 +22,7 @@ public class Posting {
 	private static final String DELIMITER_POSITIONS = ",";
 	private static final String DELIMITER_POSTING = "\t";
 	private static final String DELIMITER_POSTINGPART = ":";
-	private static final int PRECISION = 1000;
+	private static final int PRECISION = 1000000;
 
 
 	private Integer id;
@@ -68,7 +68,7 @@ public class Posting {
 	 * @param corpusSize
 	 * @param nrDocsContainingTerm
 	 */
-	public void calculateAndStoreTfIdf(int docLength, int corpusSize, int nrDocsContainingTerm){	
+	public void calculateAndStoreTfIdf(int docLength, int corpusSize, int nrDocsContainingTerm){
 		double wtf = (this.frequency == 0) ? 0 : 1 + Math.log10(this.frequency);
 		double idf = Math.log10((double)corpusSize/(double)nrDocsContainingTerm);
 		this.tfIdf = wtf*idf;
@@ -118,6 +118,16 @@ public class Posting {
 
 	private void setPositions(List<Integer> positions) {
 		this.positions = positions;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Posting [id=" + id + ", name=" + name + ", frequency="
+				+ frequency + ", tfIdf=" + tfIdf + ", positions=" + positions
+				+ "]";
 	}
 
 	public static String encodePostings(List<Posting> postings, boolean enableCompression, boolean useTfIdf) {
