@@ -27,4 +27,8 @@ public class Query {
 		return "Query [terms=" + terms + "]";
 	}
 	
+	public List<String> getQuery () {
+		return terms;
+	}
+	
 }
