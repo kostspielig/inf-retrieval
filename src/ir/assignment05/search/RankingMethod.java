@@ -39,9 +39,12 @@ public abstract class RankingMethod {
 		
 		IndexIterator it  = new IndexIterator(this.file_path);
 		
+		List<String> query = q.getQuery();
+		
 		while (it.hasNext()) {
 			IndexEntry i = it.next();
 			if (q.containsTerm(i.getTerm())) {
+				query.remove(i.getTerm());
 				for (Posting p : i.getPostings()) {
 					SearchResult s = docIDtoSearchResult.get(p.getId());
 					if (s == null) {
@@ -51,7 +54,9 @@ public abstract class RankingMethod {
 					docIDtoSearchResult.put(p.getId(), s);
 				}
 			}
-			// TODO: OPTIMIZE: break if all terms of query have been processed
+			if (query.isEmpty())
+				break;
+			// TODO: OPTIMIZE: break if all terms of query have been processed -- Done but check it! :)
 		}
 		Collection<SearchResult> searchResults = docIDtoSearchResult.values();
 		
