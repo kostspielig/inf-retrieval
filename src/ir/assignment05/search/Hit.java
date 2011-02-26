@@ -51,8 +51,8 @@ public class Hit {
 	 */
 	@Override
 	public String toString() {
-		return "Hit [term=" + term + ", tfIdf=" + tfIdf + ", positions="
-				+ positions + "]";
+		return "Hit [term=" + term + ", tfIdf=" + tfIdf + ", frequency="
+				+ positions.size() + "]";
 	}
 	
 }

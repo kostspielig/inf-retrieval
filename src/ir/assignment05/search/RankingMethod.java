@@ -27,13 +27,13 @@ import java.util.PriorityQueue;
  */
 public abstract class RankingMethod {
 
-	private String file_path;
+	protected String file_path;
 
 	public RankingMethod(String filepath) {
 		this.file_path = filepath;
 	}
 	
-	public Iterable<SearchResult> search(Query q) {
+	public PriorityQueue<SearchResult> search(Query q) {
 		
 		Map<Integer,SearchResult> docIDtoSearchResult = new HashMap<Integer,SearchResult>();
 		
@@ -51,13 +51,15 @@ public abstract class RankingMethod {
 					docIDtoSearchResult.put(p.getId(), s);
 				}
 			}
+			// TODO: OPTIMIZE: break if all terms of query have been processed
 		}
 		Collection<SearchResult> searchResults = docIDtoSearchResult.values();
 		
 		calculateScores (searchResults);
-		Comparator<SearchResult> comparator = new SearchResultComparator();
-		PriorityQueue <SearchResult> ranking = new PriorityQueue<SearchResult> ((searchResults.size() == 0) ? 1 : searchResults.size(),comparator); 
+//		Comparator<SearchResult> comparator = new SearchResultComparator();
+//		PriorityQueue <SearchResult> ranking = new PriorityQueue<SearchResult> ((searchResults.size() == 0) ? 1 : searchResults.size(),comparator); 
 		// TODO: check ordering of results (previous bug)
+		PriorityQueue<SearchResult> ranking = new PriorityQueue<SearchResult> ((searchResults.size() == 0) ? 1 : searchResults.size(),Collections.reverseOrder());
 		ranking.addAll(searchResults);
 		return ranking;
 	}

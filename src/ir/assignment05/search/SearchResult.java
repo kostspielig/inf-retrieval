@@ -15,7 +15,7 @@ import java.util.List;
  * @author Lea Voget
  *
  */
-public class SearchResult {
+public class SearchResult implements Comparable<SearchResult> {
 	
 	private int docID;
 	private List<Hit> hits;
@@ -66,6 +66,21 @@ public class SearchResult {
 	 */
 	public List<Hit> getHits() {
 		return hits;
+	}
+
+	@Override
+	public int compareTo(SearchResult o) {
+		if (this == o) {
+			return 0;
+		}
+		if (o == null) {
+			throw new NullPointerException();
+		}
+		if (this.score == null || o.getScore() == null) {
+			throw new NullPointerException();
+		}
+		
+		return this.score.compareTo(o.getScore());
 	}
 
 }
