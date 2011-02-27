@@ -1,0 +1,93 @@
+% 
+% Information Retrieval
+% -------------------------------
+% University of California Irvine
+% 
+% Author:
+% - María Carrasco Rodríguez
+% - Fabs Lindenberg
+% - Lea Voget
+
+\documentclass[a4paper,11pt,oneside]{book}
+\usepackage{wrapfig} 
+\usepackage{helvet}
+\usepackage{phdthesis}
+\usepackage{kostspielig}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{appendix}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{epsfig}
+
+
+%\pagestyle{fancy}
+%\fancyhead{}
+%\fancyhead[L]{\textsf{\textbf{CS 221 Information Retrieval}\\ Assignment 2}}
+%\fancyhead[R]{\textsf{Maria Carrasco (16874129)\\ Fabian Lindenberg (74076658)}}
+%\fancyfoot[R]{\textsf{\thepage}}
+%\renewcommand{\footrulewidth}{0.4pt}
+%\cfoot[]{}
+
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO: #1}}}
+
+\hypersetup{colorlinks, 
+           linkbordercolor= 1 0.8 0.8,
+           citecolor=black,
+           filecolor=black,
+           linkcolor=black,
+           urlcolor=black,
+           bookmarksopen=true,
+           pdftex}
+\title{Information Retrieval }
+\subtitle{Assignment 5}
+\location{University of California Irvine}
+\author{ María Carrasco Rodríguez (16874129) \\
+		Fabian Lindenberg (74076658)\\
+		Lea Voget (45869178)}
+
+
+
+\begin{document}
+
+\kostspieligmaketitle
+
+%\tableofcontents
+%\pagebreak
+% \startapendix
+
+\chapter{Context}
+
+
+ \begin{tabular} {|c|c|c|c|c|c|c|c|c| }
+   Books & Anna Karenina & Emma & Jane Eyre &  Moby Dick & Portrait of a Lady 1 & Portrait of a Lady 2 & Pride and Prejudice  &  Three Men in a Boat \\ \hline
+ Anna Karenina & - & 0.00284 &  0.00408 &  0.00339 & 0.00444 &  0.00528 & 0.00296 &  0.00169  \\ \hline
+ Emma & - & - & 0.00398 & 0.00131 & 0.00171& 0.00163 & 0.00667 &  0.00219\\ \hline
+ Jane Eyre & - & - & - & 0.00356 &  0.00391 & 0.00412 & 0.00262 & 0.00257\\ \hline
+Moby Dick & - & - & - & - & 0.00245 &  0.00294 & 0.00196 & 0.00374\\ \hline
+Portrait of a Lady 1 & - & - & - & - & - & 0.05252 & 0.00292 & 0.00142 \\ \hline
+Portrait of a Lady 2 & - & - & - & - & - & - & 0.00325 & 0.00131 \\ \hline
+Three Men in a Boat & - & - & - & - & - & - & - & 0.00106 \\ 
+    \hline
+\end{tabular}
+
+
+\pagebreak
+\begin{thebibliography}{XXX}
+	\bibitem{1} \url{www.austen.com/}
+	\bibitem{2} \url{http://librivox.org/}
+	\bibitem{3} \url{http://en.wikipedia.org/}
+	\bibitem{4} \url{}
+	\bibitem{5} \url{}
+	\bibitem{6} \url{}
+	\bibitem{7} \url{}
+	\bibitem{8} \url{}
+	\bibitem{9} \url{}
+\end{thebibliography}
+
+
+
+\end{document}
