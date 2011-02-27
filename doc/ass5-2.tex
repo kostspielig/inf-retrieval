@@ -1,0 +1,219 @@
+% 
+% Information Retrieval
+% -------------------------------
+% University of California Irvine
+% 
+% Author:
+% - María Carrasco Rodríguez
+% - Fabs Lindenberg
+% - Lea Voget
+
+\documentclass[a4paper,11pt,oneside]{book}
+\usepackage{wrapfig} 
+\usepackage{helvet}
+\usepackage{phdthesis}
+\usepackage{kostspielig}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{appendix}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{epsfig}
+
+
+%\pagestyle{fancy}
+%\fancyhead{}
+%\fancyhead[L]{\textsf{\textbf{CS 221 Information Retrieval}\\ Assignment 2}}
+%\fancyhead[R]{\textsf{Maria Carrasco (16874129)\\ Fabian Lindenberg (74076658)}}
+%\fancyfoot[R]{\textsf{\thepage}}
+%\renewcommand{\footrulewidth}{0.4pt}
+%\cfoot[]{}
+
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO: #1}}}
+
+\hypersetup{colorlinks, 
+           linkbordercolor= 1 0.8 0.8,
+           citecolor=black,
+           filecolor=black,
+           linkcolor=black,
+           urlcolor=black,
+           bookmarksopen=true,
+           pdftex}
+\title{Information Retrieval }
+\subtitle{Assignment 5}
+\location{University of California Irvine}
+\author{ María Carrasco Rodríguez (16874129) \\
+		Fabian Lindenberg (74076658)\\
+		Lea Voget (45869178)}
+
+
+
+\begin{document}
+
+\kostspieligmaketitle
+
+%\tableofcontents
+%\pagebreak
+% \startapendix
+
+\chapter{Quantification of the Dataset}
+
+\begin{itemize}
+	\item{The total of all unfiltered and unprocessed words in the document was 1456106}
+	\item{Each book had the following number of words: Emma: 165075, Anna Karenina: 361786, Jane Eyre: 192539, Moby Dick: 221810,  Portrait of a Lady: 246057, Pride and Prejudice: 125969}
+	\item{The word "love" appeared 983 times in the dataset and "adventure" occurred 19 times.}
+	\item{"Anna Karenina" and "Three men in a boat" did not contain the word adventure}
+	\item{The top 5 words in each book were:
+		\subitem{Anna Karenina:
+			\begin{itemize}
+				\item{levin		1629}
+				\item{vronski	865}
+				\item{anna	825}
+				\item{well		675}
+				\item{kitti		672}
+			\end{itemize}}
+		\subitem{Emma:
+			\begin{itemize}
+				\item{emma	867}
+				\item{harriet	506}
+				\item{thing	462}
+				\item{weston	448}
+				\item{elton	408}
+			\end{itemize}}
+		\subitem{Jane Eyre:
+			\begin{itemize}
+				\item{rochest	371}
+				\item{jane		348}
+				\item{well		348}
+				\item{sir	315}
+				\item{dai	308}
+			\end{itemize}}
+		\subitem{Moby Dick:
+			\begin{itemize}
+				\item{whale	1629}
+				\item{ship		623}
+				\item{sea		542}
+				\item{man		540}
+				\item{ahab	512}
+			\end{itemize}}
+		\subitem{Portrait of a Lady:
+			\begin{itemize}
+				\item{isabel	1490}
+				\item{don		833}
+				\item{ve		683}
+				\item{osmond	588}
+				\item{ralph	578}
+			\end{itemize}}
+		\subitem{Pride and Prejudice:
+			\begin{itemize}
+				\item{elizabeth	635}
+				\item{darci	417}
+				\item{bennet	333}
+				\item{binglei	311}
+				\item{sister	294}
+			\end{itemize}}
+		\subitem{Three Men in a Boat:
+			\begin{itemize}
+				\item{harri		275}
+				\item{georg	263}
+				\item{boat		231}
+				\item{work	164}
+				\item{river	162}
+			\end{itemize}}}
+	\item{}
+\end{itemize}
+
+
+Total words of emma.txt is 
+The word love occured 117 times.
+The word adventure occured 2 times.
+the top 5 words are: 
+
+
+
+
+
+
+
+
+Total words of annaKarenina.txt is 
+The word love occured 433 times.
+The word adventure occured 0 times.
+the top 5 words are: 
+
+
+
+Total words of janeEyre.txt is 
+The word love occured 151 times.
+The word adventure occured 3 times.
+the top 5 words are: 
+
+
+Total words of mobyDick.txt is 0
+The word love occured 24 times.
+The word adventure occured 5 times.
+the top 5 words are: 
+
+
+Total words of portraitOfALady.txt is  
+The word love occured 146 times.
+The word adventure occured 7 times.
+the top 5 words are: 
+
+
+Total words of prideAndprejudice.txt is 
+The word love occured 92 times.
+The word adventure occured 2 times.
+the top 5 words are: 
+
+
+
+Total words of threeMenInABoat.txt is 71435
+The word love occured 10 times.
+The word adventure occured 0 times.
+the top 5 words are: 
+
+
+The word love occured 
+the top 5 words are: 
+time	2621
+thought	2166
+good	2283
+well	2423
+man	2280
+
+\chapter{Processes used}
+In order to quantify the books, we wrote a quantifier. The quantifier removes the header in front of each book and then tokenizes the content of the book. Counting the number of tokens, the total number of unprocessed words is calculated.
+The quantifier has a hashmap that maps all words to their number of occurences
+Then all tokens are stemmed and it is checked if they are stopwords or not. If they aren't stopwords, they are either added to the hashmap or their value is increased by 1.
+Finally, the quantifier searches for the 5 highes values and emits the 5 appropriate key-value pairs.
+
+In order to find the number of occurences of love and adventure, we did not use the stemmed version. Each token was checked if it was love or adventure just before stemming it.
+
+The total number of words and of occurences of love and adventure in all books was found through giving the quantifier all book files at the same time.
+
+We found out that some books did not contain love or adventure, when the quantifier emitted, that one of the words was found 0 times.
+
+
+\chapter{Word clouds}
+
+
+\pagebreak
+\begin{thebibliography}{XXX}
+	\bibitem{1} \url{}
+	\bibitem{2} \url{}
+	\bibitem{3} \url{}
+	\bibitem{4} \url{}
+	\bibitem{5} \url{}
+	\bibitem{6} \url{}
+	\bibitem{7} \url{}
+	\bibitem{8} \url{}
+	\bibitem{9} \url{}
+\end{thebibliography}
+
+
+
+\end{document}
