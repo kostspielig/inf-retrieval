@@ -79,10 +79,8 @@ public class SearchResult implements Comparable<SearchResult> {
 	 */
 	@Override
 	public String toString() {
-//		return "SearchResult [docID=" + docID + ", hits=" + hits + ", score="
-//				+ score + "]";
-		return "SearchResult [docID=" + docID + ", score="
-		+ score + "]";
+		return "SearchResult [docID=" + docID + ", hits=" + hits + ", score="
+				+ score + "]";
 	}
 
 }

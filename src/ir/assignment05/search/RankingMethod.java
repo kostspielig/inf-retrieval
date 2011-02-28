@@ -29,12 +29,16 @@ public abstract class RankingMethod {
 
 	protected String file_path;
 	protected int corpusSize;
+	protected String name;
 
 	public RankingMethod(String filepath, int corpusSize) {
 		this.file_path = filepath;
 		this.corpusSize = corpusSize;
+		this.name = initializeName();
 	}
 	
+	protected abstract String initializeName();	
+
 	public PriorityQueue<SearchResult> search(Query q) {
 		
 		Map<Integer,SearchResult> docIDtoSearchResult = new HashMap<Integer,SearchResult>();
@@ -72,4 +76,8 @@ public abstract class RankingMethod {
 	}
 
 	protected abstract void calculateScores(Iterable<SearchResult> searchResults) ;
+	
+	public String getName() {
+		return this.name;
+	}
 }

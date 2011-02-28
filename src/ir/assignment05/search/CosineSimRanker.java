@@ -28,6 +28,7 @@ public class CosineSimRanker extends RankingMethod {
 	
 	public CosineSimRanker(String filepath, int corpusSize) {
 		super(filepath, corpusSize);
+		this.name = "Cosine Similarity Ranker";
 	}
 
 	public PriorityQueue<SearchResult> search(Query q) {
@@ -110,4 +111,10 @@ public class CosineSimRanker extends RankingMethod {
 			s.setScore(score);
 		}
 	}
+
+	@Override
+	protected String initializeName() {
+		return "Cosine Similarity Ranker";
+	}
+	
 }

@@ -35,6 +35,7 @@ public class Search {
 	
 	public String prettyPrintResults(PriorityQueue<SearchResult> results) {
 		SearchResult sr;
+		int precision = 100000;
 		
 		StringBuilder strBuilder = new StringBuilder();
 		int rank = 1;
@@ -49,7 +50,7 @@ public class Search {
 			strBuilder.append("(id:");
 			strBuilder.append(sr.getDocID()); 
 			strBuilder.append(")\tScore: ");
-			strBuilder.append(sr.getScore());
+			strBuilder.append((double) Math.round(sr.getScore()*precision)/(double)precision);
 			strBuilder.append("\n");
 			rank++;
 		}
@@ -95,25 +96,28 @@ public class Search {
 		RankingMethod m1 = new TfIdfRanker(indexFilePath, corpusSize);
 		RankingMethod m2 = new CosineSimRanker(indexFilePath, corpusSize); // TODO: order is inversed
 		RankingMethod m3 = new ProximityRanker(indexFilePath, corpusSize);
+		RankingMethod[] methods = {m1,m2,m3};
 		
-		QueryBuilder qb = new QueryBuilder ();
-		Query q = qb.construct("summer night");
+		String[] queries = {"summer night",
+							"great expectation",
+							"mystic conversation",
+							"sentimental reasons",
+							"fall in love",
+							"sister mother father"};
 		
-		System.out.println("tfidf");
-		PriorityQueue<SearchResult> r1 = s.search(q, m1);
-		System.out.println(s.prettyPrintResults(r1));
-		
-		System.out.println("#######################");
-		
-		System.out.println("cosine");
-		PriorityQueue<SearchResult> r2 = s.search(q, m2);
-		System.out.println(s.prettyPrintResults(r2));
-		
-		System.out.println("#######################");
-		
-		System.out.println("proximity");
-		PriorityQueue<SearchResult> r3 = s.search(q, m3);
-		System.out.println(s.prettyPrintResults(r3));
+		for (String queryString : queries) {
+			QueryBuilder qb = new QueryBuilder ();
+			Query q = qb.construct(queryString);
+			
+			System.out.println("Query: " + queryString + "\n");
+			
+			for (RankingMethod m : methods) {
+				System.out.println(m.getName());
+				PriorityQueue<SearchResult> results = s.search(q, m);
+				System.out.println(s.prettyPrintResults(results));
+			}
+			System.out.println("#######################\n");
+		}
 	}
 }
 
