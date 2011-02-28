@@ -2,6 +2,8 @@ package ir.assignment05.search;
 
 import java.util.PriorityQueue;
 
+import com.sleepycat.je.rep.impl.node.Feeder.ExitException;
+
 /**
  * CS 121 Information Retrieval <br />
  * Assignment 05 <br />
@@ -19,11 +21,19 @@ public class Search {
 	
 	
 	public static void main(String[] args) {
-		RankingMethod m1 = new TfIdfRanker(args[0]);
-		RankingMethod m2 = new CosineSimRanker(args[0]); // TODO: order is inversed
-		RankingMethod m3 = new ProximityRanker(args[0]);
+		String filePath = args[0];
+		int corpusSize = 0;
+		try {
+			corpusSize = Integer.valueOf(args[1]);
+		} catch (NumberFormatException e) {
+			System.out.println("Please specify the corpus size.");
+			System.exit(1);
+		}
+		RankingMethod m1 = new TfIdfRanker(filePath, corpusSize);
+		RankingMethod m2 = new CosineSimRanker(filePath, corpusSize); // TODO: order is inversed
+		RankingMethod m3 = new ProximityRanker(filePath, corpusSize);
 		QueryBuilder qb = new QueryBuilder ();
-		Query q = qb.construct("anna karenina");
+		Query q = qb.construct("summer night");
 		
 		System.out.println("tfidf");
 		PriorityQueue<SearchResult> r1 = Search.search(q, m1);
