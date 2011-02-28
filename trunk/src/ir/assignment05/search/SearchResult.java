@@ -27,15 +27,6 @@ public class SearchResult implements Comparable<SearchResult> {
 		this.score = null;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "SearchResult [docID=" + docID + ", hits=" + hits + ", score="
-				+ score + "]";
-	}
-
 	public void addHit(Hit h) {
 		this.hits.add(h);
 	}
@@ -81,6 +72,17 @@ public class SearchResult implements Comparable<SearchResult> {
 		}
 		
 		return this.score.compareTo(o.getScore());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+//		return "SearchResult [docID=" + docID + ", hits=" + hits + ", score="
+//				+ score + "]";
+		return "SearchResult [docID=" + docID + ", score="
+		+ score + "]";
 	}
 
 }
