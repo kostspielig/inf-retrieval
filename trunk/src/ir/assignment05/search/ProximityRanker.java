@@ -21,8 +21,8 @@ public class ProximityRanker extends RankingMethod {
 	private static final double BASE = 1.5;
 	private static final int MAX_WINDOW_SIZE = 10;
 
-	public ProximityRanker(String filepath) {
-		super(filepath);
+	public ProximityRanker(String filepath, int corpusSize) {
+		super(filepath, corpusSize);
 	}
 
 	@Override

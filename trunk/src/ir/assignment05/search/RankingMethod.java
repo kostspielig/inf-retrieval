@@ -28,9 +28,11 @@ import java.util.PriorityQueue;
 public abstract class RankingMethod {
 
 	protected String file_path;
+	protected int corpusSize;
 
-	public RankingMethod(String filepath) {
+	public RankingMethod(String filepath, int corpusSize) {
 		this.file_path = filepath;
+		this.corpusSize = corpusSize;
 	}
 	
 	public PriorityQueue<SearchResult> search(Query q) {
@@ -39,8 +41,7 @@ public abstract class RankingMethod {
 		
 		IndexIterator it  = new IndexIterator(this.file_path);
 		
-		List<String> query = new LinkedList<String>(); 
-		Collections.copy(query, q.getQuery());
+		List<String> query = new LinkedList<String>(q.getQueryTerms()); 
 		
 		while (it.hasNext()) {
 			IndexEntry i = it.next();

@@ -1,5 +1,6 @@
 package ir.assignment05.search;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,8 +12,15 @@ public class Query {
 		this.terms = new LinkedList<String>();
 	}
 	
+	/**
+	 * Adds the passed term to the query. Duplicates will not be considered.
+	 * 
+	 * @param term
+	 */
 	public void addTerm(String term) {
-		terms.add(term);
+		if (!terms.contains(term)) {
+			terms.add(term);
+		}
 	}
 	
 	public boolean containsTerm (String term) {
@@ -27,8 +35,15 @@ public class Query {
 		return "Query [terms=" + terms + "]";
 	}
 	
-	public List<String> getQuery () {
-		return terms;
+	/**
+	 * @return an unmodifiable list of the query terms
+	 */
+	public List<String> getQueryTerms () {
+		return Collections.unmodifiableList(terms);
+	}
+	
+	public int size() {
+		return terms.size();
 	}
 	
 }

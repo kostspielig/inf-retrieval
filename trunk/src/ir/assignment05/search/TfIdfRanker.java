@@ -12,8 +12,8 @@ package ir.assignment05.search;
  */
 public class TfIdfRanker extends RankingMethod {
 
-	public TfIdfRanker(String filepath) {
-		super(filepath);
+	public TfIdfRanker(String filepath, int corpusSize) {
+		super(filepath, corpusSize);
 	}
 
 	@Override

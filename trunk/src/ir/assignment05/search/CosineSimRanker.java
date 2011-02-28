@@ -24,30 +24,17 @@ import java.util.PriorityQueue;
 public class CosineSimRanker extends RankingMethod {
 	
 	private Map<Integer, Double> docIDtoMagnitudeSquared;
+	private Map<String, Double> queryTermWeights;
 	
-	public CosineSimRanker(String filepath) {
-		super(filepath);
+	public CosineSimRanker(String filepath, int corpusSize) {
+		super(filepath, corpusSize);
 	}
 
-	@Override
-	protected void calculateScores(Iterable<SearchResult> searchResults) {
-		
-		//copied from tfidfranker
-		for (SearchResult s : searchResults) {
-			double sumTfIdf = 0;
-			for (Hit h : s.getHits()) {
-				sumTfIdf += h.getTfIdf();
-			}
-			double score = sumTfIdf / Math.sqrt(this.docIDtoMagnitudeSquared.get(s.getDocID()));
-			s.setScore(score);
-		}
-	}
-
-	
 	public PriorityQueue<SearchResult> search(Query q) {
-
+	
 		Map<Integer,SearchResult> docIDtoSearchResult = new HashMap<Integer,SearchResult>();
 		this.docIDtoMagnitudeSquared = new HashMap<Integer, Double>();
+		this.queryTermWeights = new HashMap<String, Double>();
 		
 		IndexIterator it  = new IndexIterator(this.file_path);
 
@@ -59,6 +46,7 @@ public class CosineSimRanker extends RankingMethod {
 				
 				if (isRelevantTerm) {
 					updateSearchResult(docIDtoSearchResult, i, p);
+					calculateTfIdfForQueryTerm(i.getTerm(), i.getPostings().size());
 				}
 			}
 		}
@@ -71,6 +59,19 @@ public class CosineSimRanker extends RankingMethod {
 		ranking.addAll(searchResults);
 		return ranking;	
 		
+	}
+
+	/**
+	 * @param docIDtoMagnitude
+	 * @param p
+	 */
+	private void increaseMagnitude(Map<Integer, Double> docIDtoMagnitude,
+			Posting p) {
+		Double currentMagnitude = docIDtoMagnitude.get(p.getId());
+		if (currentMagnitude == null){
+			currentMagnitude = 0.0;
+		} 
+		docIDtoMagnitude.put(p.getId(), currentMagnitude + (p.getTfIdf()*p.getTfIdf()));
 	}
 
 	/**
@@ -90,16 +91,23 @@ public class CosineSimRanker extends RankingMethod {
 	}
 
 
-	/**
-	 * @param docIDtoMagnitude
-	 * @param p
-	 */
-	private void increaseMagnitude(Map<Integer, Double> docIDtoMagnitude,
-			Posting p) {
-		Double currentMagnitude = docIDtoMagnitude.get(p.getId());
-		if (currentMagnitude == null){
-			currentMagnitude = 0.0;
-		} 
-		docIDtoMagnitude.put(p.getId(), currentMagnitude + (p.getTfIdf()*p.getTfIdf()));
+	private void calculateTfIdfForQueryTerm(String term, int nrDocsContainingTerm) {
+			double wtf = 1 + Math.log10(1); // each term occurs only once in the query
+			double idf = Math.log10((double)this.corpusSize/(double)nrDocsContainingTerm);
+			this.queryTermWeights.put(term, wtf*idf);
+	}
+
+	@Override
+	protected void calculateScores(Iterable<SearchResult> searchResults) {
+		
+		//copied and adapted from tfidfranker
+		for (SearchResult s : searchResults) {
+			double sumTfIdf = 0;
+			for (Hit h : s.getHits()) {
+				sumTfIdf += h.getTfIdf() * this.queryTermWeights.get(h.getTerm());
+			}
+			double score = sumTfIdf / Math.sqrt(this.docIDtoMagnitudeSquared.get(s.getDocID()));
+			s.setScore(score);
+		}
 	}
 }
