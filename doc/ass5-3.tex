@@ -64,11 +64,24 @@
  
 
 \begin{enumerate}
-	\renewcommand{\labelenumi}{\Roman{enumi})}
-	\item The index contains 18,353 terms and has a size of 2.71 Megabyte.
-	\item At the end of this document, we include a subset of the index that contains only the query terms. The term ``in'' is missing, though, since it is recognized as a stop word and, thus, removed during index construction and query evaluation. Notably, many of the terms have a tfidf-value of \emph{zero}. This is because they occur in \emph{every} document of the corpus, which causes the idf-value and, thereby, the product to be zero. 
+		\renewcommand{\labelenumi}{\Roman{enumi})}
+		\item The index contains 18,353 terms and has a size of 2.71 Megabyte.
+		
+		\item At the end of this document, we include a subset of the index that contains only the query terms. The term ``in'' is missing, though, since it is recognized as a stop word and, thus, removed during index construction and query evaluation. Notably, many of the terms have a tfidf-value of \emph{zero}. This is because they occur in \emph{every} document of the corpus, which causes the idf-value and, thereby, the product to be zero. 
 	
-		\item
+		\item \begin{itemize}
+						\item \textbf{Simple tf-idf:}
+						
+									We iterate over the entries in the index and build a \texttt{SearchResult} object for every document that contains at least one query term. Afterwards, we calculate the accumulated score for each of these search results by \emph{summing up} the tf-idf values of the matched terms.
+									
+						\item \textbf{Cosine Similarity:}
+						
+									We regard each document as a vector and calculate the respective magnitude while iterating over the entries in the index. In the same loop we, again, build a \texttt{SearchResult} object for every document that contains at least one query term and store the tf-idf values of the matching terms. Then, we iterate over these search results and determine their final scores by calculating the dot product between query and document and dividing it by the magnitude.
+									
+						\item \textbf{Term Proximity:}
+						
+									TODO
+					\end{itemize}
 		\item
 		\clearpage
 		\item The following table shows the pair-wise comparison of the books. The Cosine Similarity is symmetric.
