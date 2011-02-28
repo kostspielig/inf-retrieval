@@ -39,7 +39,8 @@ public abstract class RankingMethod {
 		
 		IndexIterator it  = new IndexIterator(this.file_path);
 		
-		List<String> query = q.getQuery();
+		List<String> query = new LinkedList<String>(); 
+		Collections.copy(query, q.getQuery());
 		
 		while (it.hasNext()) {
 			IndexEntry i = it.next();
