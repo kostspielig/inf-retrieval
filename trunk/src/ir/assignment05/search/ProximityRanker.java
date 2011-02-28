@@ -94,4 +94,9 @@ public class ProximityRanker extends RankingMethod {
 		return wordPositions;
 	}
 
+	@Override
+	protected String initializeName() {
+		return "Proximity Ranker";
+	}
+
 }

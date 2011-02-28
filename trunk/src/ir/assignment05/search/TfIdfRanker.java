@@ -27,4 +27,9 @@ public class TfIdfRanker extends RankingMethod {
 		}
 	}
 
+	@Override
+	protected String initializeName() {
+		return "Tf-idf Ranker";
+	}
+
 }
