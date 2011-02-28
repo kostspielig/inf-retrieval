@@ -84,7 +84,15 @@
 					\end{itemize}
 		
 		
-		\item The following tables show the search results for each ranking method and each query.
+		\item The following tables show the search results for each query and each ranking method.
+		
+					Unfortunately, many documents that contain (at least some of) the query terms receive nevertheless a score of \emph{zero}, because the query terms are very general. That is, many query terms occur in all documents of the corpus and, thus, have an idf-value of zero. The ranking methods ``Simple tf-idf'' and ``Cosine Similarity'' are based on the tf-idf values and calculate, consequently, the score $0.0$. 
+					
+					One possibility to counteract this behavior would be to add $1$ to the denominator when calculating the idf: $idf_t = \log(\frac{|corpus|}{1+df_t})$. Then, terms that occur in \emph{all} documents and have a \emph{high} frequency would receive a very low, negative score. Terms that occur in \emph{all} documents but not as often would receive a negative score that is closer to zero. One could argue that this behavior represents ``relevance'' of these general terms reasonably well.
+					
+					However, if we implemented this alternative, we would only shift the problem from terms that occur in \emph{all} documents to terms that occur in \emph{all but one} documents. Terms that occur in all but one documents would always receive the tf-idf value 0.0, regardless of how often they appear in the respective document.
+					
+					In conclusion we find that a search engine should base the ranking of search results not only on tf-idf values but rather incorporate many more signals. The authority of a Web page, represented by its PageRank, is one such example signal.
 		
 		\begin{enumerate}
 			\item ``summer night''
