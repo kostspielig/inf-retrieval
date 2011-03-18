@@ -1,0 +1,78 @@
+% 
+% Information Retrieval
+% -------------------------------
+% University of California Irvine
+% 
+% Author:
+% - María Carrasco Rodríguez
+% - Fabs Lindenberg
+% - Lea Voget
+
+\documentclass[a4paper,11pt,oneside]{book}
+\usepackage{wrapfig} 
+\usepackage{helvet}
+\usepackage{phdthesis}
+\usepackage{kostspielig}
+\usepackage{amsmath}
+\usepackage{booktabs,multirow}
+\usepackage{colortbl}
+\usepackage{appendix}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{epsfig}
+\usepackage{rotating}
+
+%\pagestyle{fancy}
+%\fancyhead{}
+%\fancyhead[L]{\textsf{\textbf{CS 221 Information Retrieval}\\ Assignment 2}}
+%\fancyhead[R]{\textsf{Maria Carrasco (16874129)\\ Fabian Lindenberg (74076658)}}
+%\fancyfoot[R]{\textsf{\thepage}}
+%\renewcommand{\footrulewidth}{0.4pt}
+%\cfoot[]{}
+
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO: #1}}}
+
+\hypersetup{colorlinks, 
+           linkbordercolor= 1 0.8 0.8,
+           citecolor=black,
+           filecolor=black,
+           linkcolor=black,
+           urlcolor=black,
+           bookmarksopen=true,
+           pdftex}
+\title{Information Retrieval }
+\subtitle{Assignment 6}
+\location{University of California Irvine}
+\author{ María Carrasco Rodríguez (16874129) \\
+		Fabian Lindenberg (74076658)\\
+		Lea Voget (45869178)}
+
+
+
+\begin{document}
+
+\kostspieligmaketitle
+
+%\tableofcontents
+%\pagebreak
+% \startapendix
+%\setcounter{chapter}{1}
+
+\chapter{Extra Credit}
+ 
+Yes, there are at least two solutions to this problem. 
+
+\begin{enumerate}
+	\item \textbf{Using one single MapReduce job:}
+	
+				Given one line of the input log file, the map phase separates the host name and the corresponding visit count and emits the key-value pair $\left\langle host, count\right\rangle$. If necessary, the URL can be parsed using regular expressions to retrieve the host name.
+				
+				The reduce task gets one particular host and a \emph{list} of counts (since there can be several entries in the input file with the same host name) as input. By iterating over the list, the counts can be summed up. The reduce task then emits the pair $\left\langle host, totalCount\right\rangle$. 
+				
+				As a result of the MapReduce job we get several output files, one per reducer. We can use the UNIX commands \texttt{cat}, \texttt{sort}, and \texttt{head} to first concatenate all output, then sort the resulting file, and retrieve the first ten lines. This will yield the ten hosts with the top 10 highest visit counts.
+				
+\end{enumerate}
+
+\end{document}
