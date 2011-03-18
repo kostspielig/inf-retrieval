@@ -71,7 +71,17 @@ Yes, there are at least two solutions to this problem.
 				
 				The reduce task gets one particular host and a \emph{list} of counts (since there can be several entries in the input file with the same host name) as input. By iterating over the list, the counts can be summed up. The reduce task then emits the pair $\left\langle host, totalCount\right\rangle$. 
 				
-				As a result of the MapReduce job we get several output files, one per reducer. We can use the UNIX commands \texttt{cat}, \texttt{sort}, and \texttt{head} to first concatenate all output, then sort the resulting file, and retrieve the first ten lines. This will yield the ten hosts with the top 10 highest visit counts.
+				As a result of the MapReduce job we get several output files, one per reducer. We can use the UNIX commands \texttt{cat}, \texttt{sort}, and \texttt{head} to first concatenate all output files, then sort the result, and retrieve the first ten lines. This will yield the ten hosts with the top 10 highest visit counts.
+				
+	\item \textbf{Using two MapReduce jobs and distributed sorting:}
+	
+				Assuming very large output files, it might be desirable to distribute the sorting, as well. Instead of using the UNIX programs on one single machine, we would write a second MapReduce job that works on the output of the first one. 
+				
+				Given one line of an output file, the map task of the second job identifies the visit count as the sorting key. It emits $\left\langle totalCount, host\right\rangle$. 
+				
+				Thanks to the sorting of these intermediate keys performed by the MapReduce framework, the reduce task just acts as an identity function and emits all pairs unchanged. 
+				
+				As a result of the second job, we obtain output files sorted according to the visit counts. One of these files will contain the top ten hosts with the top 10 highest visit counts. 
 				
 \end{enumerate}
 
